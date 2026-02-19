@@ -395,6 +395,13 @@ object AccountHelper {
                 accountSelectCallback = { account ->
                     viewModel.handleAccountSelect(account, activity)
                     builder.dismissSafe()
+            
+                    MainActivity.pendingRepoUrl?.let { url ->
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            activity.loadRepository(url)
+                            MainActivity.pendingRepoUrl = null
+                        }, 300)
+                    }
                 },
                 accountCreateCallback = { viewModel.handleAccountUpdate(it, activity) },
                 accountEditCallback = { viewModel.handleAccountUpdate(it, activity) },

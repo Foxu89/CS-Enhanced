@@ -289,10 +289,18 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                 fun safeURI(uri: String) = safe { URI(uri) }
 
                 if (str != null && this != null) {
-                    if (str.startsWith("https://cs.repo")) {
-                        val realUrl = "https://" + str.substringAfter("?")
-                        println("Repository url: $realUrl")
-                        loadRepository(realUrl)
+                    if (str.startsWith("https://cs.repo") || safeURI(str)?.scheme == APP_STRING_REPO) {
+                        val realUrl = if (str.startsWith("https://cs.repo")) {
+                            "https://" + str.substringAfter("?")
+                        } else {
+                            str.replaceFirst(APP_STRING_REPO, "https")
+                        }
+    
+                        if (this != null) {
+                            loadRepository(realUrl)
+                        } else {
+                            pendingRepoUrl = realUrl
+                        }
                         return true
                     } else if (str.contains(APP_STRING)) {
                         for (api in AccountManager.allApis) {
@@ -332,10 +340,10 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                                 )
                             }
                         }
-                    } else if (safeURI(str)?.scheme == APP_STRING_REPO) {
-                        val url = str.replaceFirst(APP_STRING_REPO, "https")
-                        loadRepository(url)
-                        return true
+              //      } else if (safeURI(str)?.scheme == APP_STRING_REPO) {
+              //          val url = str.replaceFirst(APP_STRING_REPO, "https")
+              //          loadRepository(url)
+              //          return true
                     } else if (safeURI(str)?.scheme == APP_STRING_SEARCH) {
                         val query = str.substringAfter("$APP_STRING_SEARCH://")
                         nextSearchQuery =

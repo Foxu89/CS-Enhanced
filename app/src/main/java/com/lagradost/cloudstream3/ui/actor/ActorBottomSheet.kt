@@ -12,6 +12,8 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -71,7 +73,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     )
                 )
                 
-                val json = response.jsonObject
+                val json = JSONObject(response.text)
                 
                 val birthday = json.optString("birthday", null)
                 val deathday = json.optString("deathday", null)

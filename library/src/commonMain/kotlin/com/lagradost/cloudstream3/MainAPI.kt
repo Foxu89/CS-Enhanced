@@ -1441,9 +1441,9 @@ enum class ActorRole {
  * @property image Url nullable String to Actor image (Optional).
  * */
 data class Actor(
-    val id: Int? = null,
     val name: String,
     val image: String? = null,
+    val id: Int? = null,
 )
 
 /** Data class hold Actor information

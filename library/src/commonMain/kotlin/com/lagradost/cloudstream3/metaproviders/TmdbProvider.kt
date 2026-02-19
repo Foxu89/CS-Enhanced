@@ -123,12 +123,21 @@ open class TmdbProvider : MainAPI() {
         }
     }
 
-    private fun List<CastMember?>?.toActors(): List<Pair<Actor, String?>>? {
-        return this?.mapNotNull {
-            Pair(
-                Actor(it?.name ?: return@mapNotNull null, getImageUrl(it.profile_path)),
-                it.character
-            )
+    private fun List<CastMember?>?.toActors(): List<Pair<ActorData, String?>>? {
+        return this?.mapNotNull { castMember ->
+            castMember?.let {
+                Pair(
+                    ActorData(
+                        id = it.id,
+                        actor = Actor(
+                            name = it.name ?: return@mapNotNull null,
+                            image = getImageUrl(it.profile_path)
+                        ),
+                        roleString = it.character
+                    ),
+                    it.character
+                )
+            }
         }
     }
 

@@ -398,7 +398,7 @@ object AccountHelper {
             
                     MainActivity.pendingRepoUrl?.let { url ->
                         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            activity.loadRepository(url)
+                            MainActivity.loadRepository(url)
                             MainActivity.pendingRepoUrl = null
                         }, 300)
                     }

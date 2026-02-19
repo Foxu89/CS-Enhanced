@@ -1441,6 +1441,7 @@ enum class ActorRole {
  * @property image Url nullable String to Actor image (Optional).
  * */
 data class Actor(
+    val id: Int? = null,
     val name: String,
     val image: String? = null,
 )
@@ -1452,7 +1453,6 @@ data class Actor(
  * @property voiceActor Voice [Actor] personal info, can be used in case of Animation for voice actors. (Optional).
  * */
 data class ActorData(
-    val id: Int? = null, 
     val actor: Actor,
     val role: ActorRole? = null,
     val roleString: String? = null,

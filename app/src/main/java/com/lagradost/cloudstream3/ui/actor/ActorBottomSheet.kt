@@ -23,6 +23,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_ACTOR_ID = "actor_id"
         private const val ARG_ACTOR_NAME = "actor_name"
         private const val ARG_ACTOR_IMAGE = "actor_image"
+        private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb" // La tua API key corta
 
         fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
             val fragment = ActorBottomSheet()
@@ -64,16 +65,12 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
                 val language = prefs.getString("language_key", "en") ?: "en"
                 
-                // Call TMDB API
+                // Call TMDB API with short API key in params
                 val response = app.get(
                     "https://api.themoviedb.org/3/person/$actorId",
-                    headers = mapOf(
-                        "Authorization" to "Bearer YOUR_TMDB_API_KEY", // TODO: Add TMDB API key
-                        "Accept" to "application/json"
-                    ),
                     params = mapOf(
-                        "language" to language,
-                        "append_to_response" to "images" // Optional for more images
+                        "api_key" to TMDB_API_KEY,
+                        "language" to language
                     )
                 )
                 

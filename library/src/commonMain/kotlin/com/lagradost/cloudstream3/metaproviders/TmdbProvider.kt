@@ -129,11 +129,11 @@ open class TmdbProvider : MainAPI() {
             castMember?.let {
                 Pair(
                     Actor(
-                        id = it.id,  // <-- ID qui
                         name = it.name ?: return@mapNotNull null,
-                        image = getImageUrl(it.profile_path)
+                        image = getImageUrl(it.profile_path),
+                        id = it.id
                     ),
-                    it.character  // <-- ruolo qui
+                    it.character  
                 )
             }
         }

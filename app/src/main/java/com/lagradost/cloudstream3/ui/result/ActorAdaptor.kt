@@ -83,7 +83,7 @@ class ActorAdaptor(
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
         // Get TMDB ID from the actor
-                        val actorId = item.id
+                        val actorId = item.actor.id
                         val actorName = item.actor.name
                         val actorImage = item.actor.image
         

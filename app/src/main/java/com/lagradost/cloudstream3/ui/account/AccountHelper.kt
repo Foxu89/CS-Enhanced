@@ -33,6 +33,7 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.mvvm.observe
 import com.lagradost.cloudstream3.ui.result.setLinearListLayout
 import com.lagradost.cloudstream3.utils.AppContextUtils.setDefaultFocus
+import com.lagradost.cloudstream3.utils.AppContextUtils.loadRepository
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getDefaultAccount
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -398,7 +399,7 @@ object AccountHelper {
             
                     MainActivity.pendingRepoUrl?.let { url ->
                         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            MainActivity.loadRepository(url)
+                            activity.loadRepository(url)
                             MainActivity.pendingRepoUrl = null
                         }, 300)
                     }

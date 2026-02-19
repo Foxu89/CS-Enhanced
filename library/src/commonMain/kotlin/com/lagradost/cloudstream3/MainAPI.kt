@@ -1452,7 +1452,7 @@ data class Actor(
  * @property voiceActor Voice [Actor] personal info, can be used in case of Animation for voice actors. (Optional).
  * */
 data class ActorData(
-    val id: Int?,
+    val id: Int? = null, 
     val actor: Actor,
     val role: ActorRole? = null,
     val roleString: String? = null,

@@ -81,13 +81,23 @@ class ActorAdaptor(
 
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
-                        Intent(Intent.ACTION_WEB_SEARCH).apply {
-                            putExtra(SearchManager.QUERY, item.actor.name)
-                        }.also { intent ->
-                            itemView.context.packageManager?.let { pm ->
-                                if (intent.resolveActivity(pm) != null) {
-                                    itemView.context.startActivity(intent)
-                                }
+        // Get TMDB ID from the actor
+                        val actorId = item.actor.id
+                        val actorName = item.actor.name
+                        val actorImage = item.actor.image
+        
+        // Show bottom sheet instead of web search
+                        if (actorId != null) {
+                            val bottomSheet = com.lagradost.cloudstream3.ui.actor.ActorBottomSheet.newInstance(
+                                actorId,
+                                actorName,
+                                actorImage
+                            )
+            
+            // Get FragmentActivity from context
+                            val activity = (itemView.context as? androidx.fragment.app.FragmentActivity)
+                            activity?.let {
+                                bottomSheet.show(it.supportFragmentManager, "ActorBottomSheet")
                             }
                         }
                     }

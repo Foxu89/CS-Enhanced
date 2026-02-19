@@ -6,9 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.R
+import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorBottomSheetBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.utils.AppContextUtils.loadImage
+import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import java.text.SimpleDateFormat
@@ -23,7 +24,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_ACTOR_ID = "actor_id"
         private const val ARG_ACTOR_NAME = "actor_name"
         private const val ARG_ACTOR_IMAGE = "actor_image"
-        private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb" // La tua API key corta
+        private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
 
         fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
             val fragment = ActorBottomSheet()
@@ -48,24 +49,20 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         val actorName = arguments?.getString(ARG_ACTOR_NAME) ?: ""
         val actorImage = arguments?.getString(ARG_ACTOR_IMAGE)
         
-        // Show basic info immediately
         binding.actorName.text = actorName
         if (!actorImage.isNullOrEmpty()) {
             binding.actorImage.loadImage(actorImage)
         }
         
-        // Load detailed info from TMDB
         loadActorDetails(actorId)
     }
     
     private fun loadActorDetails(actorId: Int) {
         ioSafe {
             try {
-                // Get language from settings
                 val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
                 val language = prefs.getString("language_key", "en") ?: "en"
                 
-                // Call TMDB API with short API key in params
                 val response = app.get(
                     "https://api.themoviedb.org/3/person/$actorId",
                     params = mapOf(
@@ -109,7 +106,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                         binding.actorBirthplace.visibility = View.GONE
                     }
                     
-                    if (!biography.isEmpty()) {
+                    if (biography.isNotEmpty()) {
                         binding.actorBio.text = biography
                     } else {
                         binding.actorBio.text = "No biography available in selected language"

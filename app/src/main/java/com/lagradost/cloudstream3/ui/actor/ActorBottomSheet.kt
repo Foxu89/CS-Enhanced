@@ -14,11 +14,21 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
+import com.lagradost.cloudstream3.MainActivity
+import com.lagradost.cloudstream3.MovieSearchResponse
+import com.lagradost.cloudstream3.TvSeriesSearchResponse
+import com.lagradost.cloudstream3.TvType
 import org.json.JSONObject
 import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
+
+data class KnownForItem(
+    val title: String,
+    val posterPath: String?,
+    val mediaType: String,
+    val id: Int
+)
 
 class ActorBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentActorBottomSheetBinding? = null
@@ -142,7 +152,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     }
                 }
                 
-                items.sortByDescending { it.title.length }
+                items.sortByDescending { it.popularity }
                 
                 main {
                     if (items.isNotEmpty()) {
@@ -161,17 +171,34 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     private fun openMediaDetails(item: KnownForItem) {
         val activity = activity ?: return
         
-        // Costruisci l'URL TMDB
-        val url = if (item.mediaType == "movie") {
-            "https://www.themoviedb.org/movie/${item.id}"
+        // Crea la SearchResponse appropriata
+        val searchResponse = if (item.mediaType == "movie") {
+            MovieSearchResponse(
+                name = item.title,
+                url = "https://www.themoviedb.org/movie/${item.id}",
+                apiName = "TMDB",
+                type = TvType.Movie,
+                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
+                } else null
+            )
         } else {
-            "https://www.themoviedb.org/tv/${item.id}"
+            TvSeriesSearchResponse(
+                name = item.title,
+                url = "https://www.themoviedb.org/tv/${item.id}",
+                apiName = "TMDB",
+                type = TvType.TvSeries,
+                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
+                } else null
+            )
         }
         
-        // Cloudstream sa già come gestire gli URL TMDB!
-        activity.loadSearchResult(url, "TMDB", null)
+        // Usa loadSearchResult con la SearchResponse
+        if (activity is MainActivity) {
+            activity.loadSearchResult(searchResponse)
+        }
         
-        // Chiudi il bottom sheet
         dismiss()
     }
     

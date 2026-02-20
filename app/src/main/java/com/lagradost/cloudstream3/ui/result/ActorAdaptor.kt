@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.ActorData
 import com.lagradost.cloudstream3.ActorRole
 import com.lagradost.cloudstream3.R
+import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.CastItemBinding
 import com.lagradost.cloudstream3.ui.BaseDiffCallback
 import com.lagradost.cloudstream3.ui.NoStateAdapter
@@ -18,6 +19,10 @@ import com.lagradost.cloudstream3.ui.settings.Globals.PHONE
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
 import com.lagradost.cloudstream3.ui.actor.ActorBottomSheet
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
+import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
+import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.mvvm.logError
+import org.json.JSONObject
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
@@ -28,9 +33,9 @@ class ActorAdaptor(
     companion object {
         val sharedPool =
             RecyclerView.RecycledViewPool().apply { this.setMaxRecycledViews(CONTENT, 10) }
+        private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
     }
 
-    // Easier to store it here than to store it in the ActorData
     val inverted: HashMap<ActorData, Boolean> = hashMapOf()
 
     override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
@@ -47,6 +52,33 @@ class ActorAdaptor(
         }
     }
 
+    private fun searchActorOnTmdb(actorName: String, callback: (Int?) -> Unit) {
+        ioSafe {
+            try {
+                val response = app.get(
+                    "https://api.themoviedb.org/3/search/person",
+                    params = mapOf(
+                        "api_key" to TMDB_API_KEY,
+                        "query" to actorName,
+                        "language" to "en"
+                    )
+                )
+                val json = JSONObject(response.text)
+                val results = json.optJSONArray("results")
+                if (results != null && results.length() > 0) {
+                    val firstResult = results.getJSONObject(0)
+                    val actorId = firstResult.optInt("id")
+                    main { callback(actorId) }
+                } else {
+                    main { callback(null) }
+                }
+            } catch (e: Exception) {
+                logError(e)
+                main { callback(null) }
+            }
+        }
+    }
+
     override fun onBindContent(holder: ViewHolderState<Any>, item: ActorData, position: Int) {
         when (val binding = holder.view) {
             is CastItemBinding -> {
@@ -59,7 +91,6 @@ class ActorAdaptor(
                     Pair(item.voiceActor?.image, item.actor.image)
                 }
 
-                // Fix tv focus escaping the recyclerview
                 if (position == 0) {
                     itemView.nextFocusLeftId = R.id.result_cast_items
                 } else if ((position - 1) == itemCount) {
@@ -82,23 +113,28 @@ class ActorAdaptor(
 
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
-        // Get TMDB ID from the actor
-                        val actorId = item.id
                         val actorName = item.actor.name
                         val actorImage = item.actor.image
-        
-        // Show bottom sheet instead of web search
-                        if (actorId != null) {
-                            val bottomSheet = com.lagradost.cloudstream3.ui.actor.ActorBottomSheet.newInstance(
-                                actorId,
-                                actorName,
-                                actorImage
-                            )
-            
-            // Get FragmentActivity from context
-                            val activity = (itemView.context as? androidx.fragment.app.FragmentActivity)
-                            activity?.let {
-                                bottomSheet.show(it.supportFragmentManager, "ActorBottomSheet")
+                        
+                        // Cerca l'ID su TMDB usando il nome
+                        searchActorOnTmdb(actorName) { actorId ->
+                            if (actorId != null) {
+                                val bottomSheet = ActorBottomSheet.newInstance(
+                                    actorId,
+                                    actorName,
+                                    actorImage
+                                )
+                                val activity = (itemView.context as? androidx.fragment.app.FragmentActivity)
+                                activity?.let {
+                                    bottomSheet.show(it.supportFragmentManager, "ActorBottomSheet")
+                                }
+                            } else {
+                                // Fallback a Google search se non trovato
+                                Intent(Intent.ACTION_WEB_SEARCH).apply {
+                                    putExtra(SearchManager.QUERY, actorName)
+                                }.also { intent ->
+                                    itemView.context.startActivity(intent)
+                                }
                             }
                         }
                     }
@@ -112,17 +148,9 @@ class ActorAdaptor(
                     item.role?.let {
                         actorExtra.context?.getString(
                             when (it) {
-                                ActorRole.Main -> {
-                                    R.string.actor_main
-                                }
-
-                                ActorRole.Supporting -> {
-                                    R.string.actor_supporting
-                                }
-
-                                ActorRole.Background -> {
-                                    R.string.actor_background
-                                }
+                                ActorRole.Main -> R.string.actor_main
+                                ActorRole.Supporting -> R.string.actor_supporting
+                                ActorRole.Background -> R.string.actor_background
                             }
                         )?.let { text ->
                             actorExtra.isVisible = true

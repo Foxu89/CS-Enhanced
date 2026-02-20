@@ -15,8 +15,6 @@ import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
-import com.lagradost.cloudstream3.MovieSearchResponse
-import com.lagradost.cloudstream3.TvSeriesSearchResponse
 import com.lagradost.cloudstream3.TvType
 import org.json.JSONObject
 import org.json.JSONArray
@@ -148,7 +146,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 }
                 
                 // Ordina per popolarità
-                items.sortByDescending { it.title.length } // Semplice ordinamento
+                items.sortByDescending { it.title.length }
                 
                 main {
                     if (items.isNotEmpty()) {
@@ -173,26 +171,29 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             "https://www.themoviedb.org/tv/${item.id}"
         }
         
+        // Usa i metodi factory non deprecati
         val searchResponse = if (item.mediaType == "movie") {
-            MovieSearchResponse(
+            com.lagradost.cloudstream3.newMovieSearchResponse(
                 name = item.title,
                 url = url,
-                apiName = "TMDB",
                 type = TvType.Movie,
-                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                fix = true
+            ) {
+                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
                     "https://image.tmdb.org/t/p/w500${item.posterPath}"
                 } else null
-            )
+            }
         } else {
-            TvSeriesSearchResponse(
+            com.lagradost.cloudstream3.newTvSeriesSearchResponse(
                 name = item.title,
                 url = url,
-                apiName = "TMDB",
                 type = TvType.TvSeries,
-                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                fix = true
+            ) {
+                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
                     "https://image.tmdb.org/t/p/w500${item.posterPath}"
                 } else null
-            )
+            }
         }
         
         activity.loadSearchResult(searchResponse)

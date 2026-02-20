@@ -141,7 +141,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical">
+        android:scrollbars="vertical"
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/actor_bio"

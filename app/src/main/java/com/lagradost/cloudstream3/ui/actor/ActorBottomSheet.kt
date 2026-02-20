@@ -1,6 +1,8 @@
 package com.lagradost.cloudstream3.ui.actor
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.SearchRecentSuggestions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +14,6 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,6 +57,15 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             binding.actorImage.loadImage(actorImage)
         }
         
+        // Pulsante per cercare sul web (fallback)
+        binding.searchWebButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
+                putExtra(android.app.SearchManager.QUERY, actorName)
+            }
+            startActivity(intent)
+            dismiss()
+        }
+        
         loadActorDetails(actorId)
     }
     
@@ -69,7 +79,8 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     "https://api.themoviedb.org/3/person/$actorId",
                     params = mapOf(
                         "api_key" to TMDB_API_KEY,
-                        "language" to language
+                        "language" to language,
+                        "append_to_response" to "external_ids"
                     )
                 )
                 
@@ -91,15 +102,24 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     
                     binding.actorDepartment.text = knownForDepartment
                     
+                    // Gestione data di nascita e morte
                     if (!birthday.isNullOrEmpty()) {
                         val age = calculateAge(birthday, deathday)
-                        binding.actorBirthday.text = if (deathday.isNullOrEmpty()) {
-                            "$birthday ($age years old)"
+                        
+                        if (deathday.isNullOrEmpty()) {
+                            // Attore vivo
+                            binding.actorBirthday.text = formatDate(birthday)
+                            binding.actorAge.text = "$age years old"
+                            binding.actorAge.visibility = View.VISIBLE
                         } else {
-                            "$birthday - $deathday"
+                            // Attore morto
+                            binding.actorBirthday.text = "${formatDate(birthday)} - ${formatDate(deathday)}"
+                            binding.actorAge.text = "$age years old (at death)"
+                            binding.actorAge.visibility = View.VISIBLE
                         }
                     } else {
                         binding.actorBirthday.visibility = View.GONE
+                        binding.actorAge.visibility = View.GONE
                     }
                     
                     if (!placeOfBirth.isNullOrEmpty()) {
@@ -110,8 +130,16 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     
                     if (biography.isNotEmpty()) {
                         binding.actorBio.text = biography
+                        
+                        // Aggiungi credit Wikipedia se presente
+                        val wikiCredit = extractWikipediaCredit(biography)
+                        if (wikiCredit != null) {
+                            binding.actorBioSource.text = wikiCredit
+                            binding.actorBioSource.visibility = View.VISIBLE
+                        }
                     } else {
                         binding.actorBio.text = "No biography available in selected language"
+                        binding.actorBioSource.visibility = View.GONE
                     }
                 }
             } catch (e: Exception) {
@@ -123,17 +151,49 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         }
     }
     
+    private fun formatDate(dateString: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val outputFormat = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date)
+        } catch (e: Exception) {
+            dateString
+        }
+    }
+    
     private fun calculateAge(birthday: String, deathday: String?): String {
         return try {
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             val birthDate = format.parse(birthday) ?: return ""
             val endDate = if (!deathday.isNullOrEmpty()) format.parse(deathday) else Date()
             
-            val age = (endDate.time - birthDate.time) / (1000L * 60 * 60 * 24 * 365)
+            var age = endDate.year - birthDate.year
+            if (endDate.month < birthDate.month || 
+                (endDate.month == birthDate.month && endDate.date < birthDate.date)) {
+                age--
+            }
             age.toString()
         } catch (e: Exception) {
             ""
         }
+    }
+    
+    private fun extractWikipediaCredit(biography: String): String? {
+        val patterns = listOf(
+            Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia"),
+            Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
+            Regex("From Wikipedia, the free encyclopedia"),
+            Regex("Wikipedia")
+        )
+        
+        for (pattern in patterns) {
+            val match = pattern.find(biography)
+            if (match != null) {
+                return "Source: Wikipedia (CC-BY-SA)"
+            }
+        }
+        return null
     }
     
     override fun onDestroyView() {

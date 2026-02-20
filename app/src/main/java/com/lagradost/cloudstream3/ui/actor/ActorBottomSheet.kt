@@ -14,10 +14,13 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
+import com.lagradost.cloudstream3.APIHolder
+import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainActivity
-import com.lagradost.cloudstream3.MovieSearchResponse
-import com.lagradost.cloudstream3.TvSeriesSearchResponse
 import com.lagradost.cloudstream3.TvType
+import com.lagradost.cloudstream3.newMovieSearchResponse
+import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import org.json.JSONObject
 import org.json.JSONArray
 import java.text.SimpleDateFormat
@@ -104,6 +107,10 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         isKnownForVisible = !isKnownForVisible
     }
     
+    private fun getTmdbProvider(): MainAPI? {
+        return APIHolder.getApiFromNameNull("TMDB")
+    }
+    
     private fun loadKnownFor(actorId: Int) {
         ioSafe {
             try {
@@ -138,9 +145,8 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     }
                     
                     val posterPath = item.optString("poster_path", null)
-                    val popularity = item.optDouble("popularity", 0.0)
                     
-                    if (title.isNotEmpty() && posterPath != null && popularity > 1.0) {
+                    if (title.isNotEmpty() && posterPath != null) {
                         items.add(
                             KnownForItem(
                                 title = title,
@@ -151,8 +157,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                         )
                     }
                 }
-                
-                items.sortByDescending { it.popularity }
                 
                 main {
                     if (items.isNotEmpty()) {
@@ -170,35 +174,43 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     
     private fun openMediaDetails(item: KnownForItem) {
         val activity = activity ?: return
+        val tmdbProvider = getTmdbProvider() ?: return
         
-        // Crea la SearchResponse appropriata
-        val searchResponse = if (item.mediaType == "movie") {
-            MovieSearchResponse(
-                name = item.title,
-                url = "https://www.themoviedb.org/movie/${item.id}",
-                apiName = "TMDB",
-                type = TvType.Movie,
-                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-            )
+        val url = if (item.mediaType == "movie") {
+            "https://www.themoviedb.org/movie/${item.id}"
         } else {
-            TvSeriesSearchResponse(
-                name = item.title,
-                url = "https://www.themoviedb.org/tv/${item.id}",
-                apiName = "TMDB",
-                type = TvType.TvSeries,
-                posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-            )
+            "https://www.themoviedb.org/tv/${item.id}"
         }
         
-        // Usa loadSearchResult con la SearchResponse
+        val searchResponse = if (item.mediaType == "movie") {
+            tmdbProvider.newMovieSearchResponse(
+                name = item.title,
+                url = url,
+                type = TvType.Movie,
+                fix = true
+            ) {
+                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
+                } else null
+                this.id = item.id
+            }
+        } else {
+            tmdbProvider.newTvSeriesSearchResponse(
+                name = item.title,
+                url = url,
+                type = TvType.TvSeries,
+                fix = true
+            ) {
+                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
+                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
+                } else null
+                this.id = item.id
+            }
+        }
+        
         if (activity is MainActivity) {
             activity.loadSearchResult(searchResponse)
         }
-        
         dismiss()
     }
     

@@ -2,7 +2,6 @@ package com.lagradost.cloudstream3.metaproviders
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.Actor
-import com.lagradost.cloudstream3.ActorData
 import com.lagradost.cloudstream3.Episode
 import com.lagradost.cloudstream3.ErrorLoadingException
 import com.lagradost.cloudstream3.HomePageList
@@ -125,17 +124,11 @@ open class TmdbProvider : MainAPI() {
     }
 
     private fun List<CastMember?>?.toActors(): List<Pair<Actor, String?>>? {
-        return this?.mapNotNull { castMember ->
-            castMember?.let {
-                Pair(
-                    Actor(
-                        name = it.name ?: return@mapNotNull null,
-                        image = getImageUrl(it.profile_path),
-                        id = it.id
-                    ),
-                    it.character  
-                )
-            }
+        return this?.mapNotNull {
+            Pair(
+                Actor(it?.name ?: return@mapNotNull null, getImageUrl(it.profile_path)),
+                it.character
+            )
         }
     }
 

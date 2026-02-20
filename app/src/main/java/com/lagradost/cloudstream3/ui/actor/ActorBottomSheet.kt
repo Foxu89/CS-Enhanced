@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
@@ -14,29 +13,13 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
-import com.lagradost.cloudstream3.APIHolder
-import com.lagradost.cloudstream3.MainAPI
-import com.lagradost.cloudstream3.MainActivity
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.newMovieSearchResponse
-import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import org.json.JSONObject
-import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
-
-data class KnownForItem(
-    val title: String,
-    val posterPath: String?,
-    val mediaType: String,
-    val id: Int
-)
 
 class ActorBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentActorBottomSheetBinding? = null
     private val binding get() = _binding!!
-    private var isKnownForVisible = false
 
     companion object {
         private const val ARG_ACTOR_ID = "actor_id"
@@ -67,17 +50,9 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         val actorName = arguments?.getString(ARG_ACTOR_NAME) ?: ""
         val actorImage = arguments?.getString(ARG_ACTOR_IMAGE)
         
-        // Setup header
-        binding.actorNameHeader.text = actorName
         binding.actorName.text = actorName
-        
         if (!actorImage.isNullOrEmpty()) {
             binding.actorImage.loadImage(actorImage)
-        }
-        
-        // Menu button click
-        binding.menuButton.setOnClickListener {
-            toggleKnownForSection()
         }
         
         // Pulsante per cercare sul web
@@ -89,129 +64,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         
-        // Setup RecyclerView con GridLayoutManager (3 colonne)
-        binding.knownForRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        
         loadActorDetails(actorId)
-        loadKnownFor(actorId)
-    }
-    
-    private fun toggleKnownForSection() {
-        if (isKnownForVisible) {
-            binding.knownForSection.visibility = View.GONE
-            binding.mainContent.visibility = View.VISIBLE
-        } else {
-            binding.knownForSection.visibility = View.VISIBLE
-            binding.mainContent.visibility = View.GONE
-        }
-        isKnownForVisible = !isKnownForVisible
-    }
-    
-    private fun getTmdbProvider(): MainAPI? {
-        return APIHolder.getApiFromNameNull("TMDB")
-    }
-    
-    private fun loadKnownFor(actorId: Int) {
-        ioSafe {
-            try {
-                val response = app.get(
-                    "https://api.themoviedb.org/3/person/$actorId/combined_credits",
-                    params = mapOf(
-                        "api_key" to TMDB_API_KEY,
-                        "language" to "en"
-                    )
-                )
-                
-                val json = JSONObject(response.text)
-                val cast = json.optJSONArray("cast") ?: JSONArray()
-                
-                val items = mutableListOf<KnownForItem>()
-                val seenIds = mutableSetOf<Int>()
-                
-                for (i in 0 until cast.length()) {
-                    if (items.size >= 15) break
-                    
-                    val item = cast.getJSONObject(i)
-                    val id = item.optInt("id")
-                    
-                    if (seenIds.contains(id)) continue
-                    seenIds.add(id)
-                    
-                    val mediaType = item.optString("media_type")
-                    val title = if (mediaType == "movie") {
-                        item.optString("title")
-                    } else {
-                        item.optString("name")
-                    }
-                    
-                    val posterPath = item.optString("poster_path", null)
-                    
-                    if (title.isNotEmpty() && posterPath != null) {
-                        items.add(
-                            KnownForItem(
-                                title = title,
-                                posterPath = posterPath,
-                                mediaType = mediaType,
-                                id = id
-                            )
-                        )
-                    }
-                }
-                
-                main {
-                    if (items.isNotEmpty()) {
-                        binding.knownForRecyclerView.adapter = KnownForAdapter(items) { item ->
-                            openMediaDetails(item)
-                        }
-                    }
-                }
-                
-            } catch (e: Exception) {
-                logError(e)
-            }
-        }
-    }
-    
-    private fun openMediaDetails(item: KnownForItem) {
-        val activity = activity ?: return
-        val tmdbProvider = getTmdbProvider() ?: return
-        
-        val url = if (item.mediaType == "movie") {
-            "https://www.themoviedb.org/movie/${item.id}"
-        } else {
-            "https://www.themoviedb.org/tv/${item.id}"
-        }
-        
-        val searchResponse = if (item.mediaType == "movie") {
-            tmdbProvider.newMovieSearchResponse(
-                name = item.title,
-                url = url,
-                type = TvType.Movie,
-                fix = true
-            ) {
-                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-                this.id = item.id
-            }
-        } else {
-            tmdbProvider.newTvSeriesSearchResponse(
-                name = item.title,
-                url = url,
-                type = TvType.TvSeries,
-                fix = true
-            ) {
-                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-                this.id = item.id
-            }
-        }
-        
-        if (activity is MainActivity) {
-            activity.loadSearchResult(searchResponse)
-        }
-        dismiss()
     }
     
     private fun loadActorDetails(actorId: Int) {
@@ -245,16 +98,19 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                         else -> "Not specified"
                     }
                     
-                    if (!birthday.isNullOrEmpty() && birthday != "null") {
+                    // Gestione data di nascita e morte
+                    if (!birthday.isNullOrEmpty()) {
                         val formattedBirthday = formatDate(birthday)
                         
                         if (!deathday.isNullOrEmpty() && deathday != "null") {
+                            // Attore morto
                             val formattedDeathday = formatDate(deathday)
                             binding.actorBirthday.text = "$formattedBirthday - $formattedDeathday"
                             
                             val age = calculateAge(birthday, deathday)
                             binding.actorAge.text = "$age years old"
                         } else {
+                            // Attore vivo
                             binding.actorBirthday.text = formattedBirthday
                             
                             val age = calculateAge(birthday, null)
@@ -269,13 +125,13 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     if (!placeOfBirth.isNullOrEmpty() && placeOfBirth != "null") {
                         binding.actorBirthplace.text = placeOfBirth
                     } else {
-                        binding.actorBirthplace.visibility = View.GONE
+                        binding.actorBirthplace.text = "Unknown"
                     }
                     
                     if (biography.isNotEmpty()) {
                         binding.actorBio.text = biography
                     } else {
-                        binding.actorBio.text = "No biography available"
+                        binding.actorBio.text = "No biography available in selected language"
                     }
                 }
             } catch (e: Exception) {
@@ -290,6 +146,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     private fun cleanBiography(bio: String): String {
         if (bio.isEmpty()) return bio
         
+        // Rimuovi la parte del copyright di Wikipedia
         val wikipediaPatterns = listOf(
             Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia\\."),
             Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
@@ -305,6 +162,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             cleanBio = cleanBio.replace(pattern, "").trim()
         }
         
+        // Rimuovi spazi multipli e righe vuote
         cleanBio = cleanBio.replace(Regex("\\n\\s*\\n"), "\n\n")
         
         return cleanBio

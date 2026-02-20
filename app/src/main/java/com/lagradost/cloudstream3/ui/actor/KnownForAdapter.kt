@@ -7,13 +7,6 @@ import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.databinding.ItemKnownForGridBinding
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
-data class KnownForItem(
-    val title: String,
-    val posterPath: String?,
-    val mediaType: String,
-    val id: Int
-)
-
 class KnownForAdapter(
     private val items: List<KnownForItem>,
     private val onItemClick: (KnownForItem) -> Unit

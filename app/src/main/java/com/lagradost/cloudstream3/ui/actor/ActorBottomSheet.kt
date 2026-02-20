@@ -9,17 +9,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.newMovieSearchResponse
-import com.lagradost.cloudstream3.newTvSeriesSearchResponse
-import com.lagradost.cloudstream3.MovieSearchResponse
-import com.lagradost.cloudstream3.TvSeriesSearchResponse
 import com.lagradost.cloudstream3.databinding.FragmentActorBottomSheetBinding
 import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
-import com.lagradost.cloudstream3.TvType
 import org.json.JSONObject
 import org.json.JSONArray
 import java.text.SimpleDateFormat
@@ -116,7 +111,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val items = mutableListOf<KnownForItem>()
                 val seenIds = mutableSetOf<Int>()
                 
-                // Prendi i primi 15 film/serie più popolari/noti
                 for (i in 0 until cast.length()) {
                     if (items.size >= 15) break
                     
@@ -136,7 +130,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     val posterPath = item.optString("poster_path", null)
                     val popularity = item.optDouble("popularity", 0.0)
                     
-                    // Filtra solo quelli con poster e titolo
                     if (title.isNotEmpty() && posterPath != null && popularity > 1.0) {
                         items.add(
                             KnownForItem(
@@ -149,7 +142,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     }
                 }
                 
-                // Ordina per popolarità
                 items.sortByDescending { it.title.length }
                 
                 main {
@@ -169,38 +161,17 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     private fun openMediaDetails(item: KnownForItem) {
         val activity = activity ?: return
         
+        // Costruisci l'URL TMDB
         val url = if (item.mediaType == "movie") {
             "https://www.themoviedb.org/movie/${item.id}"
         } else {
             "https://www.themoviedb.org/tv/${item.id}"
         }
         
-        // Usa i metodi factory non deprecati
-        val searchResponse = if (item.mediaType == "movie") {
-            com.lagradost.cloudstream3.newMovieSearchResponse(
-                name = item.title,
-                url = url,
-                type = TvType.Movie,
-                fix = true
-            ) {
-                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-            }
-        } else {
-            com.lagradost.cloudstream3.newTvSeriesSearchResponse(
-                name = item.title,
-                url = url,
-                type = TvType.TvSeries,
-                fix = true
-            ) {
-                this.posterUrl = if (!item.posterPath.isNullOrEmpty()) {
-                    "https://image.tmdb.org/t/p/w500${item.posterPath}"
-                } else null
-            }
-        }
+        // Cloudstream sa già come gestire gli URL TMDB!
+        activity.loadSearchResult(url, "TMDB", null)
         
-        activity.loadSearchResult(searchResponse)
+        // Chiudi il bottom sheet
         dismiss()
     }
     

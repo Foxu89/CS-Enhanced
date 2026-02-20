@@ -2,7 +2,6 @@ package com.lagradost.cloudstream3.ui.actor
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.SearchRecentSuggestions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +15,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import org.json.JSONObject
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class ActorBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentActorBottomSheetBinding? = null
@@ -57,7 +55,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             binding.actorImage.loadImage(actorImage)
         }
         
-        // Pulsante per cercare sul web (fallback)
+        // Pulsante per cercare sul web
         binding.searchWebButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
                 putExtra(android.app.SearchManager.QUERY, actorName)
@@ -79,8 +77,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     "https://api.themoviedb.org/3/person/$actorId",
                     params = mapOf(
                         "api_key" to TMDB_API_KEY,
-                        "language" to language,
-                        "append_to_response" to "external_ids"
+                        "language" to language
                     )
                 )
                 
@@ -90,56 +87,51 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val deathday = json.optString("deathday", null)
                 val placeOfBirth = json.optString("place_of_birth", null)
                 val gender = json.optInt("gender", 0)
-                val biography = json.optString("biography", "")
+                val biography = cleanBiography(json.optString("biography", ""))
                 val knownForDepartment = json.optString("known_for_department", "")
                 
                 main {
+                    binding.actorDepartment.text = knownForDepartment
                     binding.actorGender.text = when (gender) {
                         1 -> "Female"
                         2 -> "Male"
                         else -> "Not specified"
                     }
                     
-                    binding.actorDepartment.text = knownForDepartment
-                    
                     // Gestione data di nascita e morte
                     if (!birthday.isNullOrEmpty()) {
-                        val age = calculateAge(birthday, deathday)
+                        val formattedBirthday = formatDate(birthday)
                         
-                        if (deathday.isNullOrEmpty()) {
-                            // Attore vivo
-                            binding.actorBirthday.text = formatDate(birthday)
-                            binding.actorAge.text = "$age years old"
-                            binding.actorAge.visibility = View.VISIBLE
-                        } else {
+                        if (!deathday.isNullOrEmpty() && deathday != "null") {
                             // Attore morto
-                            binding.actorBirthday.text = "${formatDate(birthday)} - ${formatDate(deathday)}"
-                            binding.actorAge.text = "$age years old (at death)"
-                            binding.actorAge.visibility = View.VISIBLE
+                            val formattedDeathday = formatDate(deathday)
+                            binding.actorBirthday.text = "$formattedBirthday - $formattedDeathday"
+                            
+                            val age = calculateAge(birthday, deathday)
+                            binding.actorAge.text = "$age years old"
+                        } else {
+                            // Attore vivo
+                            binding.actorBirthday.text = formattedBirthday
+                            
+                            val age = calculateAge(birthday, null)
+                            binding.actorAge.text = "$age years old"
                         }
+                        binding.actorAge.visibility = View.VISIBLE
                     } else {
                         binding.actorBirthday.visibility = View.GONE
                         binding.actorAge.visibility = View.GONE
                     }
                     
-                    if (!placeOfBirth.isNullOrEmpty()) {
+                    if (!placeOfBirth.isNullOrEmpty() && placeOfBirth != "null") {
                         binding.actorBirthplace.text = placeOfBirth
                     } else {
-                        binding.actorBirthplace.visibility = View.GONE
+                        binding.actorBirthplace.text = "Unknown"
                     }
                     
                     if (biography.isNotEmpty()) {
                         binding.actorBio.text = biography
-                        
-                        // Aggiungi credit Wikipedia se presente
-                        val wikiCredit = extractWikipediaCredit(biography)
-                        if (wikiCredit != null) {
-                            binding.actorBioSource.text = wikiCredit
-                            binding.actorBioSource.visibility = View.VISIBLE
-                        }
                     } else {
                         binding.actorBio.text = "No biography available in selected language"
-                        binding.actorBioSource.visibility = View.GONE
                     }
                 }
             } catch (e: Exception) {
@@ -149,6 +141,31 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 }
             }
         }
+    }
+    
+    private fun cleanBiography(bio: String): String {
+        if (bio.isEmpty()) return bio
+        
+        // Rimuovi la parte del copyright di Wikipedia
+        val wikipediaPatterns = listOf(
+            Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia\\."),
+            Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
+            Regex("From Wikipedia, the free encyclopedia"),
+            Regex("Wikipedia®"),
+            Regex("Wikimedia Foundation"),
+            Regex("CC-BY-SA"),
+            Regex("GNU Free Documentation License")
+        )
+        
+        var cleanBio = bio
+        for (pattern in wikipediaPatterns) {
+            cleanBio = cleanBio.replace(pattern, "").trim()
+        }
+        
+        // Rimuovi spazi multipli e righe vuote
+        cleanBio = cleanBio.replace(Regex("\\n\\s*\\n"), "\n\n")
+        
+        return cleanBio
     }
     
     private fun formatDate(dateString: String): String {
@@ -162,38 +179,29 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         }
     }
     
-    private fun calculateAge(birthday: String, deathday: String?): String {
+    private fun calculateAge(birthday: String, deathday: String?): Int {
         return try {
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val birthDate = format.parse(birthday) ?: return ""
-            val endDate = if (!deathday.isNullOrEmpty()) format.parse(deathday) else Date()
+            val birthDate = format.parse(birthday) ?: return 0
+            val endDate = if (!deathday.isNullOrEmpty() && deathday != "null") {
+                format.parse(deathday) ?: Date()
+            } else {
+                Date()
+            }
             
-            var age = endDate.year - birthDate.year
-            if (endDate.month < birthDate.month || 
-                (endDate.month == birthDate.month && endDate.date < birthDate.date)) {
+            val birthCalendar = Calendar.getInstance().apply { time = birthDate }
+            val endCalendar = Calendar.getInstance().apply { time = endDate }
+            
+            var age = endCalendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)
+            
+            if (endCalendar.get(Calendar.DAY_OF_YEAR) < birthCalendar.get(Calendar.DAY_OF_YEAR)) {
                 age--
             }
-            age.toString()
+            
+            age
         } catch (e: Exception) {
-            ""
+            0
         }
-    }
-    
-    private fun extractWikipediaCredit(biography: String): String? {
-        val patterns = listOf(
-            Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia"),
-            Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
-            Regex("From Wikipedia, the free encyclopedia"),
-            Regex("Wikipedia")
-        )
-        
-        for (pattern in patterns) {
-            val match = pattern.find(biography)
-            if (match != null) {
-                return "Source: Wikipedia (CC-BY-SA)"
-            }
-        }
-        return null
     }
     
     override fun onDestroyView() {

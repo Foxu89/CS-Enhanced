@@ -2,15 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:background="?android:attr/colorBackground">
+    android:background="?attr/primaryBlackBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:background="?attr/primaryBlackBackground">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/actor_image"
@@ -18,7 +19,8 @@
             android:layout_height="100dp"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/roundedImageView"
-            android:src="@drawable/ic_baseline_person_24"/>
+            android:src="@drawable/ic_baseline_person_24"
+            app:tint="?attr/iconColor"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -34,7 +36,8 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:text="Name"
-                android:textColor="?android:attr/textColorPrimary"/>
+                android:textColor="?attr/textColor"
+                android:fontFamily="@font/google_sans"/>
 
             <TextView
                 android:id="@+id/actor_department"
@@ -43,7 +46,8 @@
                 android:textSize="14sp"
                 android:text="Department"
                 android:layout_marginTop="4dp"
-                android:textColor="?android:attr/textColorSecondary"/>
+                android:textColor="?attr/grayTextColor"
+                android:fontFamily="@font/google_sans"/>
 
             <TextView
                 android:id="@+id/actor_birthday_label"
@@ -53,7 +57,8 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"
-                android:textColor="?android:attr/textColorPrimary"/>
+                android:textColor="?attr/textColor"
+                android:fontFamily="@font/google_sans"/>
 
             <TextView
                 android:id="@+id/actor_birthday"
@@ -61,7 +66,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:layout_marginStart="4dp"
-                android:textColor="?android:attr/textColorPrimary"/>
+                android:textColor="?attr/textColor"
+                android:fontFamily="@font/google_sans"/>
 
             <TextView
                 android:id="@+id/actor_age"
@@ -69,7 +75,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:layout_marginTop="2dp"
-                android:textColor="?android:attr/textColorSecondary"/>
+                android:textColor="?attr/grayTextColor"
+                android:fontFamily="@font/google_sans"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,7 +91,8 @@
                     android:text="gender:"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"/>
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
 
                 <TextView
                     android:id="@+id/actor_gender"
@@ -92,7 +100,8 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:layout_marginStart="4dp"
-                    android:textColor="?android:attr/textColorPrimary"/>
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
             </LinearLayout>
 
             <LinearLayout
@@ -108,7 +117,8 @@
                     android:text="place of birth:"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"/>
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
 
                 <TextView
                     android:id="@+id/actor_birthplace"
@@ -116,7 +126,8 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:layout_marginStart="4dp"
-                    android:textColor="?android:attr/textColorPrimary"/>
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -126,42 +137,58 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        android:layout_marginVertical="16dp"/>
+        android:layout_marginHorizontal="20dp"/>
 
-    <TextView
-        android:id="@+id/actor_bio_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Biography"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_marginBottom="8dp"/>
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="20dp"
+        android:background="?attr/primaryBlackBackground">
 
         <TextView
-            android:id="@+id/actor_bio"
-            android:layout_width="match_parent"
+            android:id="@+id/actor_bio_label"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:lineSpacingExtra="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:text="Loading biography..."/>
-    </ScrollView>
+            android:text="Biography"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textColor"
+            android:fontFamily="@font/google_sans"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:background="?attr/primaryBlackBackground">
+
+            <TextView
+                android:id="@+id/actor_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="?attr/grayTextColor"
+                android:fontFamily="@font/google_sans"
+                android:text="Loading biography..."/>
+        </ScrollView>
+    </LinearLayout>
 
     <Button
         android:id="@+id/searchWebButton"
+        style="@style/BlackButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_margin="20dp"
         android:text="Search on web"
         android:drawableStart="@drawable/ic_baseline_search_24"
         android:drawablePadding="8dp"
-        style="?android:attr/buttonBarButtonStyle" />
-
+        android:fontFamily="@font/google_sans"
+        app:iconTint="?attr/textColor"/>
 </LinearLayout>

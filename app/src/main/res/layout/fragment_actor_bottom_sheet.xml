@@ -20,7 +20,7 @@
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/roundedImageView"
             android:src="@drawable/ic_baseline_person_24"
-            app:tint="?attr/iconColor"/>
+            android:importantForAccessibility="no"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -49,87 +49,6 @@
                 android:textColor="?attr/grayTextColor"
                 android:fontFamily="@font/google_sans"/>
 
-            <TextView
-                android:id="@+id/actor_birthday_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="birth:"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp"
-                android:textColor="?attr/textColor"
-                android:fontFamily="@font/google_sans"/>
-
-            <TextView
-                android:id="@+id/actor_birthday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginStart="4dp"
-                android:textColor="?attr/textColor"
-                android:fontFamily="@font/google_sans"/>
-
-            <TextView
-                android:id="@+id/actor_age"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp"
-                android:textColor="?attr/grayTextColor"
-                android:fontFamily="@font/google_sans"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:id="@+id/actor_gender_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="gender:"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textColor"
-                    android:fontFamily="@font/google_sans"/>
-
-                <TextView
-                    android:id="@+id/actor_gender"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_marginStart="4dp"
-                    android:textColor="?attr/textColor"
-                    android:fontFamily="@font/google_sans"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:id="@+id/actor_birthplace_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="place of birth:"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textColor"
-                    android:fontFamily="@font/google_sans"/>
-
-                <TextView
-                    android:id="@+id/actor_birthplace"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_marginStart="4dp"
-                    android:textColor="?attr/textColor"
-                    android:fontFamily="@font/google_sans"/>
-            </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 
@@ -148,6 +67,107 @@
         android:paddingBottom="20dp"
         android:background="?attr/primaryBlackBackground">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:background="?attr/primaryBlackBackground">
+
+            <!-- Birth row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/actor_birth_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Birth ·"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+
+                <TextView
+                    android:id="@+id/actor_birthday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+            </LinearLayout>
+
+            <!-- Age (indented) -->
+            <TextView
+                android:id="@+id/actor_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginStart="40dp"
+                android:textColor="?attr/grayTextColor"
+                android:fontFamily="@font/google_sans"/>
+
+            <!-- Gender row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/actor_gender_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gender ·"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+
+                <TextView
+                    android:id="@+id/actor_gender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+            </LinearLayout>
+
+            <!-- Place of birth row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/actor_birthplace_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Place of birth ·"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+
+                <TextView
+                    android:id="@+id/actor_birthplace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+            </LinearLayout>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/actor_bio_label"
             android:layout_width="wrap_content"
@@ -157,7 +177,7 @@
             android:textStyle="bold"
             android:textColor="?attr/textColor"
             android:fontFamily="@font/google_sans"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:layout_marginBottom="8dp"/>
 
         <ScrollView

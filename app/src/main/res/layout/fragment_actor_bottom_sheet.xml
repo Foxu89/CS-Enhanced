@@ -55,6 +55,15 @@
                 android:textColor="?android:attr/textColorPrimary"/>
 
             <TextView
+                android:id="@+id/actor_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Age"
+                android:layout_marginTop="2dp"
+                android:textColor="?android:attr/textColorSecondary"/>
+
+            <TextView
                 android:id="@+id/actor_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -96,14 +105,39 @@
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
 
-        <TextView
-            android:id="@+id/actor_bio"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:lineSpacingExtra="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:text="Loading biography..."/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/actor_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:text="Loading biography..."/>
+
+            <TextView
+                android:id="@+id/actor_bio_source"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/searchWebButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Search on web"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:drawablePadding="8dp"
+        style="?android:attr/buttonBarButtonStyle" />
 
 </LinearLayout>

@@ -1456,7 +1456,6 @@ data class ActorData(
     val role: ActorRole? = null,
     val roleString: String? = null,
     val voiceActor: Actor? = null,
-    val id: Int? = null,
 )
 
 /** Data class of [SearchResponse] interface for Anime.

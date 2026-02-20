@@ -49,43 +49,19 @@
                 android:textColor="?attr/grayTextColor"
                 android:fontFamily="@font/google_sans"/>
 
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        android:layout_marginHorizontal="20dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingBottom="20dp"
-        android:background="?attr/primaryBlackBackground">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp"
-            android:background="?attr/primaryBlackBackground">
-
-            <!-- Birth row -->
+            <!-- Birth -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginTop="8dp"
                 android:baselineAligned="false">
 
                 <TextView
                     android:id="@+id/actor_birth_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Birth ·"
+                    android:text="Birth:"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -107,23 +83,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="50dp"
                 android:textColor="?attr/grayTextColor"
                 android:fontFamily="@font/google_sans"/>
 
-            <!-- Gender row -->
+            <!-- Gender -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:baselineAligned="false">
 
                 <TextView
                     android:id="@+id/actor_gender_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Gender ·"
+                    android:text="Gender:"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -139,19 +115,19 @@
                     android:fontFamily="@font/google_sans"/>
             </LinearLayout>
 
-            <!-- Place of birth row -->
+            <!-- Birthplace -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:baselineAligned="false">
 
                 <TextView
                     android:id="@+id/actor_birthplace_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Place of birth ·"
+                    android:text="Birthplace:"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -166,27 +142,44 @@
                     android:textColor="?attr/textColor"
                     android:fontFamily="@font/google_sans"/>
             </LinearLayout>
+
         </LinearLayout>
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/actor_bio_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Biography"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textColor"
-            android:fontFamily="@font/google_sans"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:layout_marginHorizontal="20dp"/>
 
-        <ScrollView
+    <!-- Biography section con NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:background="?attr/primaryBlackBackground">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:scrollbars="vertical"
-            android:fadeScrollbars="false"
-            android:background="?attr/primaryBlackBackground">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp">
+
+            <TextView
+                android:id="@+id/actor_bio_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Biography"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textColor"
+                android:fontFamily="@font/google_sans"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
 
             <TextView
                 android:id="@+id/actor_bio"
@@ -197,8 +190,8 @@
                 android:textColor="?attr/grayTextColor"
                 android:fontFamily="@font/google_sans"
                 android:text="Loading biography..."/>
-        </ScrollView>
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <Button
         android:id="@+id/searchWebButton"

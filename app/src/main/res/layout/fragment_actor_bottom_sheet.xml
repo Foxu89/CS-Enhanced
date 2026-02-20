@@ -136,7 +136,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Search on web"
-        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:drawableStart="@drawable/search_icon"
         android:drawablePadding="8dp"
         style="?android:attr/buttonBarButtonStyle" />
 

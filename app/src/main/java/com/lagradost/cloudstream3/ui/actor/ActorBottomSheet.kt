@@ -9,6 +9,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.newMovieSearchResponse
+import com.lagradost.cloudstream3.newTvSeriesSearchResponse
+import com.lagradost.cloudstream3.MovieSearchResponse
+import com.lagradost.cloudstream3.TvSeriesSearchResponse
 import com.lagradost.cloudstream3.databinding.FragmentActorBottomSheetBinding
 import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage

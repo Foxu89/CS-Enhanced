@@ -55,7 +55,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             binding.actorImage.loadImage(actorImage)
         }
         
-        // Pulsante per cercare sul web
         binding.searchWebButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
                 putExtra(android.app.SearchManager.QUERY, actorName)
@@ -67,17 +66,39 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         loadActorDetails(actorId)
     }
     
+    private fun getTmdbLanguageCode(): String {
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val appLanguage = prefs.getString("language_key", "en") ?: "en"
+        
+        // Mappa i codici lingua dell'app ai codici TMDB
+        return when (appLanguage) {
+            "it" -> "it-IT"
+            "en" -> "en-US"
+            "es" -> "es-ES"
+            "fr" -> "fr-FR"
+            "de" -> "de-DE"
+            "pt" -> "pt-PT"
+            "pt-rBR" -> "pt-BR"
+            "zh" -> "zh-CN"
+            "ja" -> "ja-JP"
+            "ko" -> "ko-KR"
+            "ru" -> "ru-RU"
+            "ar" -> "ar-SA"
+            "hi" -> "hi-IN"
+            else -> "$appLanguage" // Fallback generico
+        }
+    }
+    
     private fun loadActorDetails(actorId: Int) {
         ioSafe {
             try {
-                val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-                val language = prefs.getString("language_key", "en") ?: "en"
+                val tmdbLanguage = getTmdbLanguageCode()
                 
                 val response = app.get(
                     "https://api.themoviedb.org/3/person/$actorId",
                     params = mapOf(
                         "api_key" to TMDB_API_KEY,
-                        "language" to language
+                        "language" to tmdbLanguage
                     )
                 )
                 
@@ -93,57 +114,56 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 main {
                     binding.actorDepartment.text = knownForDepartment
                     
-                    // Gestione gender con simbolo
+                    val yearsOld = getString(R.string.actor_years_old)
                     val genderText = when (gender) {
-                        1 -> "Female♀️"
-                        2 -> "Male ♂️"
-                        else -> "Not specified"
+                        1 -> "${getString(R.string.actor_female)} ♀️"
+                        2 -> "${getString(R.string.actor_male)} ♂️"
+                        else -> getString(R.string.actor_not_specified)
                     }
                     binding.actorGender.text = genderText
                     
-                    // Gestione data di nascita e morte
                     if (!birthday.isNullOrEmpty()) {
                         val formattedBirthday = formatDate(birthday)
                         binding.actorBirthday.text = formattedBirthday
                         
                         if (!deathday.isNullOrEmpty() && deathday != "null") {
-                            // Attore morto
                             val formattedDeathday = formatDate(deathday)
                             binding.actorDeathday.text = formattedDeathday
                             binding.actorDeathLayout.visibility = View.VISIBLE
                             
                             val age = calculateAge(birthday, deathday)
-                            binding.actorAge.text = "Age: $age years old"
+                            binding.actorAgeValue.text = "$age $yearsOld"
                         } else {
-                            // Attore vivo
                             binding.actorDeathLayout.visibility = View.GONE
                             
                             val age = calculateAge(birthday, null)
-                            binding.actorAge.text = "Age: $age years old"
+                            binding.actorAgeValue.text = "$age $yearsOld"
                         }
-                        binding.actorAge.visibility = View.VISIBLE
+                        binding.actorAgeLabel.visibility = View.VISIBLE
+                        binding.actorAgeValue.visibility = View.VISIBLE
                     } else {
                         binding.actorBirthday.visibility = View.GONE
                         binding.actorDeathLayout.visibility = View.GONE
-                        binding.actorAge.visibility = View.GONE
+                        binding.actorAgeLabel.visibility = View.GONE
+                        binding.actorAgeValue.visibility = View.GONE
                     }
                     
                     if (!placeOfBirth.isNullOrEmpty() && placeOfBirth != "null") {
                         binding.actorBirthplace.text = placeOfBirth
                     } else {
-                        binding.actorBirthplace.text = "Unknown"
+                        binding.actorBirthplace.text = getString(R.string.actor_unknown)
                     }
                     
                     if (biography.isNotEmpty()) {
                         binding.actorBio.text = biography
                     } else {
-                        binding.actorBio.text = "No biography available in selected language"
+                        binding.actorBio.text = getString(R.string.actor_no_biography)
                     }
                 }
             } catch (e: Exception) {
                 logError(e)
                 main {
-                    binding.actorBio.text = "Error loading actor details"
+                    binding.actorBio.text = getString(R.string.actor_error)
                 }
             }
         }
@@ -152,7 +172,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     private fun cleanBiography(bio: String): String {
         if (bio.isEmpty()) return bio
         
-        // Rimuovi la parte del copyright di Wikipedia
         val wikipediaPatterns = listOf(
             Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia\\."),
             Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
@@ -168,7 +187,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             cleanBio = cleanBio.replace(pattern, "").trim()
         }
         
-        // Rimuovi spazi multipli e righe vuote
         cleanBio = cleanBio.replace(Regex("\\n\\s*\\n"), "\n\n")
         
         return cleanBio

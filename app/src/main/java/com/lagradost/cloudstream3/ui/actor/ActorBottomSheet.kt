@@ -80,12 +80,13 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             "pt" -> "pt-PT"
             "pt-rBR" -> "pt-BR"
             "zh" -> "zh-CN"
+            "zh-rTW" -> "zh-TW"
             "ja" -> "ja-JP"
             "ko" -> "ko-KR"
             "ru" -> "ru-RU"
             "ar" -> "ar-SA"
             "hi" -> "hi-IN"
-            else -> "$appLanguage" // Fallback generico
+            else -> "en-US"
         }
     }
     

@@ -92,33 +92,39 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 
                 main {
                     binding.actorDepartment.text = knownForDepartment
-                    binding.actorGender.text = when (gender) {
-                        1 -> "Female"
-                        2 -> "Male"
+                    
+                    // Gestione gender con simbolo
+                    val genderText = when (gender) {
+                        1 -> "Female♀️"
+                        2 -> "Male ♂️"
                         else -> "Not specified"
                     }
+                    binding.actorGender.text = genderText
                     
                     // Gestione data di nascita e morte
                     if (!birthday.isNullOrEmpty()) {
                         val formattedBirthday = formatDate(birthday)
+                        binding.actorBirthday.text = formattedBirthday
                         
                         if (!deathday.isNullOrEmpty() && deathday != "null") {
                             // Attore morto
                             val formattedDeathday = formatDate(deathday)
-                            binding.actorBirthday.text = "$formattedBirthday - $formattedDeathday"
+                            binding.actorDeathday.text = formattedDeathday
+                            binding.actorDeathLayout.visibility = View.VISIBLE
                             
                             val age = calculateAge(birthday, deathday)
-                            binding.actorAge.text = "$age years old"
+                            binding.actorAge.text = "Age: $age years old"
                         } else {
                             // Attore vivo
-                            binding.actorBirthday.text = formattedBirthday
+                            binding.actorDeathLayout.visibility = View.GONE
                             
                             val age = calculateAge(birthday, null)
-                            binding.actorAge.text = "$age years old"
+                            binding.actorAge.text = "Age: $age years old"
                         }
                         binding.actorAge.visibility = View.VISIBLE
                     } else {
                         binding.actorBirthday.visibility = View.GONE
+                        binding.actorDeathLayout.visibility = View.GONE
                         binding.actorAge.visibility = View.GONE
                     }
                     

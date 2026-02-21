@@ -69,27 +69,11 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     
     private fun getTmdbLanguageCode(): String {
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val appLanguage = prefs.getString("locale_key", "en") ?: "en"
+        val appLanguage = prefs.getString("locale_key", "en-US") ?: "en-US"
         
         Log.d("ActorBottomSheet", "App language: $appLanguage")
         
-        return when (appLanguage) {
-            "it" -> "it-IT"
-            "en" -> "en-US"
-            "es" -> "es-ES"
-            "fr" -> "fr-FR"
-            "de" -> "de-DE"
-            "pt" -> "pt-PT"
-            "pt-BR" -> "pt-BR"
-            "zh" -> "zh-CN"
-            "zh-TW" -> "zh-TW"
-            "ja" -> "ja-JP"
-            "ko" -> "ko-KR"
-            "ru" -> "ru-RU"
-            "ar" -> "ar-SA"
-            "hi" -> "hi-IN"
-            else -> "en-US"
-        }
+        return appLanguage
     }
     
     private fun loadActorDetails(actorId: Int) {
@@ -111,7 +95,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val deathday = json.optString("deathday", null)
                 val placeOfBirth = json.optString("place_of_birth", null)
                 val gender = json.optInt("gender", 0)
-                val biography = cleanBiography(json.optString("biography", ""))
+                val biography = json.optString("biography", "")  // <-- SENZA cleanBiography
                 val knownForDepartment = json.optString("known_for_department", "")
                 
                 main {
@@ -170,29 +154,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 }
             }
         }
-    }
-    
-    private fun cleanBiography(bio: String): String {
-        if (bio.isEmpty()) return bio
-        
-        val wikipediaPatterns = listOf(
-            Regex("Description above from the Wikipedia article [^,]+, licensed under CC-BY-SA, full list of contributors on Wikipedia\\."),
-            Regex("This article is licensed under the GNU Free Documentation License\\. It uses material from the Wikipedia article [^.]+\\.", RegexOption.IGNORE_CASE),
-            Regex("From Wikipedia, the free encyclopedia"),
-            Regex("Wikipedia®"),
-            Regex("Wikimedia Foundation"),
-            Regex("CC-BY-SA"),
-            Regex("GNU Free Documentation License")
-        )
-        
-        var cleanBio = bio
-        for (pattern in wikipediaPatterns) {
-            cleanBio = cleanBio.replace(pattern, "").trim()
-        }
-        
-        cleanBio = cleanBio.replace(Regex("\\n\\s*\\n"), "\n\n")
-        
-        return cleanBio
     }
     
     private fun formatDate(dateString: String): String {

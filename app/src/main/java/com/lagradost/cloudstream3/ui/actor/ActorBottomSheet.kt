@@ -27,16 +27,17 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_ACTOR_NAME = "actor_name"
         private const val ARG_ACTOR_IMAGE = "actor_image"
         private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
+        private const val TAG = "ActorBottomSheet"
+    }
 
-        fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
-            val fragment = ActorBottomSheet()
-            val args = Bundle()
-            args.putInt(ARG_ACTOR_ID, actorId)
-            args.putString(ARG_ACTOR_NAME, actorName)
-            args.putString(ARG_ACTOR_IMAGE, actorImage)
-            fragment.arguments = args
-            return fragment
-        }
+    fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
+        val fragment = ActorBottomSheet()
+        val args = Bundle()
+        args.putInt(ARG_ACTOR_ID, actorId)
+        args.putString(ARG_ACTOR_NAME, actorName)
+        args.putString(ARG_ACTOR_IMAGE, actorImage)
+        fragment.arguments = args
+        return fragment
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -50,6 +51,9 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         val actorId = arguments?.getInt(ARG_ACTOR_ID) ?: return
         val actorName = arguments?.getString(ARG_ACTOR_NAME) ?: ""
         val actorImage = arguments?.getString(ARG_ACTOR_IMAGE)
+        
+        Log.d(TAG, "Actor ID: $actorId")
+        Log.d(TAG, "Actor Name: $actorName")
         
         binding.actorName.text = actorName
         if (!actorImage.isNullOrEmpty()) {
@@ -71,7 +75,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
         val appLanguage = prefs.getString("locale_key", "en-US") ?: "en-US"
         
-        Log.d("ActorBottomSheet", "App language: $appLanguage")
+        Log.d(TAG, "App language from prefs: $appLanguage")
         
         return appLanguage
     }
@@ -81,22 +85,45 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             try {
                 val tmdbLanguage = getTmdbLanguageCode()
                 
-                val response = app.get(
-                    "https://api.themoviedb.org/3/person/$actorId",
-                    params = mapOf(
-                        "api_key" to TMDB_API_KEY,
-                        "language" to tmdbLanguage
-                    )
+                val url = "https://api.themoviedb.org/3/person/$actorId"
+                val params = mapOf(
+                    "api_key" to TMDB_API_KEY,
+                    "language" to tmdbLanguage
                 )
                 
+                Log.d(TAG, "API URL: $url")
+                Log.d(TAG, "Params: $params")
+                
+                val response = app.get(url, params = params)
+                
+                Log.d(TAG, "Response code: ${response.code}")
+                Log.d(TAG, "Response text length: ${response.text.length}")
+                
                 val json = JSONObject(response.text)
+                
+                // Log completto della risposta (solo in debug)
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Full JSON response: ${json.toString(2)}")
+                }
                 
                 val birthday = json.optString("birthday", null)
                 val deathday = json.optString("deathday", null)
                 val placeOfBirth = json.optString("place_of_birth", null)
                 val gender = json.optInt("gender", 0)
-                val biography = json.optString("biography", "")  // <-- SENZA cleanBiography
+                val biography = json.optString("biography", "")
                 val knownForDepartment = json.optString("known_for_department", "")
+                
+                Log.d(TAG, "Birthday: $birthday")
+                Log.d(TAG, "Deathday: $deathday")
+                Log.d(TAG, "Place of birth: $placeOfBirth")
+                Log.d(TAG, "Gender: $gender")
+                Log.d(TAG, "Biography length: ${biography.length}")
+                Log.d(TAG, "Known for department: $knownForDepartment")
+                
+                // Primi 200 caratteri della biografia per vedere la lingua
+                if (biography.length > 0) {
+                    Log.d(TAG, "Biography preview: ${biography.substring(0, minOf(200, biography.length))}")
+                }
                 
                 main {
                     binding.actorDepartment.text = knownForDepartment
@@ -149,6 +176,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 }
             } catch (e: Exception) {
                 logError(e)
+                Log.e(TAG, "Error loading actor details", e)
                 main {
                     binding.actorBio.text = getString(R.string.actor_error)
                 }

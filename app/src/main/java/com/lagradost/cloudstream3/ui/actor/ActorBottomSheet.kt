@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.lagradost.cloudstream3.BuildConfig
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorBottomSheetBinding
@@ -28,16 +29,16 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_ACTOR_IMAGE = "actor_image"
         private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
         private const val TAG = "ActorBottomSheet"
-    }
 
-    fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
-        val fragment = ActorBottomSheet()
-        val args = Bundle()
-        args.putInt(ARG_ACTOR_ID, actorId)
-        args.putString(ARG_ACTOR_NAME, actorName)
-        args.putString(ARG_ACTOR_IMAGE, actorImage)
-        fragment.arguments = args
-        return fragment
+        fun newInstance(actorId: Int, actorName: String, actorImage: String?): ActorBottomSheet {
+            val fragment = ActorBottomSheet()
+            val args = Bundle()
+            args.putInt(ARG_ACTOR_ID, actorId)
+            args.putString(ARG_ACTOR_NAME, actorName)
+            args.putString(ARG_ACTOR_IMAGE, actorImage)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -97,11 +98,10 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val response = app.get(url, params = params)
                 
                 Log.d(TAG, "Response code: ${response.code}")
-                Log.d(TAG, "Response text length: ${response.text.length}")
                 
                 val json = JSONObject(response.text)
                 
-                // Log completto della risposta (solo in debug)
+                // Log completo solo in debug
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Full JSON response: ${json.toString(2)}")
                 }
@@ -120,8 +120,8 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 Log.d(TAG, "Biography length: ${biography.length}")
                 Log.d(TAG, "Known for department: $knownForDepartment")
                 
-                // Primi 200 caratteri della biografia per vedere la lingua
-                if (biography.length > 0) {
+                // Primi 200 caratteri della biografia
+                if (biography.isNotEmpty()) {
                     Log.d(TAG, "Biography preview: ${biography.substring(0, minOf(200, biography.length))}")
                 }
                 

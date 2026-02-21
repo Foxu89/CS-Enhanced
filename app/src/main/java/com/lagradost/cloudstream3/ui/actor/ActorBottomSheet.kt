@@ -2,6 +2,7 @@ package com.lagradost.cloudstream3.ui.actor
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,9 +69,10 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
     
     private fun getTmdbLanguageCode(): String {
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val appLanguage = prefs.getString("language_key", "en") ?: "en"
+        val appLanguage = prefs.getString("locale_key", "en") ?: "en"
         
-        // Mappa i codici lingua dell'app ai codici TMDB
+        Log.d("ActorBottomSheet", "App language: $appLanguage")
+        
         return when (appLanguage) {
             "it" -> "it-IT"
             "en" -> "en-US"
@@ -78,9 +80,9 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             "fr" -> "fr-FR"
             "de" -> "de-DE"
             "pt" -> "pt-PT"
-            "pt-rBR" -> "pt-BR"
+            "pt-BR" -> "pt-BR"
             "zh" -> "zh-CN"
-            "zh-rTW" -> "zh-TW"
+            "zh-TW" -> "zh-TW"
             "ja" -> "ja-JP"
             "ko" -> "ko-KR"
             "ru" -> "ru-RU"

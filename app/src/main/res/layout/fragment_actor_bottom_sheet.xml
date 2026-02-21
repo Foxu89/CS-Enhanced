@@ -61,7 +61,7 @@
                     android:id="@+id/actor_birth_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Birth:"
+                    android:text="@string/actor_birth"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -90,7 +90,7 @@
                     android:id="@+id/actor_death_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Death:"
+                    android:text="@string/actor_death"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -106,14 +106,32 @@
                     android:fontFamily="@font/google_sans"/>
             </LinearLayout>
 
-            <!-- Age (stesso livello degli altri) -->
-            <TextView
-                android:id="@+id/actor_age"
-                android:layout_width="wrap_content"
+            <!-- Age con label in grassetto -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="?attr/textColor"
-                android:fontFamily="@font/google_sans"/>
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/actor_age_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/actor_age"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+
+                <TextView
+                    android:id="@+id/actor_age_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+            </LinearLayout>
 
             <!-- Gender -->
             <LinearLayout
@@ -127,7 +145,7 @@
                     android:id="@+id/actor_gender_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Gender:"
+                    android:text="@string/actor_gender"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -155,7 +173,7 @@
                     android:id="@+id/actor_birthplace_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Birthplace:"
+                    android:text="@string/actor_birthplace"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textColor"
@@ -201,7 +219,7 @@
                 android:id="@+id/actor_bio_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Biography"
+                android:text="@string/actor_biography"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/textColor"
@@ -217,7 +235,7 @@
                 android:lineSpacingExtra="2dp"
                 android:textColor="?attr/grayTextColor"
                 android:fontFamily="@font/google_sans"
-                android:text="Loading biography..."/>
+                android:text="@string/actor_loading"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -227,9 +245,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Search on web"
-        android:drawableStart="@drawable/ic_baseline_search_24"
-        android:drawablePadding="8dp"
-        android:fontFamily="@font/google_sans"
-        app:iconTint="?attr/textColor"/>
+        android:text="@string/actor_search_web"
+        android:fontFamily="@font/google_sans"/>
 </LinearLayout>

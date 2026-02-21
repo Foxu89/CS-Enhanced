@@ -77,14 +77,42 @@
                     android:fontFamily="@font/google_sans"/>
             </LinearLayout>
 
-            <!-- Age (indented) -->
+            <!-- Death (solo se morto) -->
+            <LinearLayout
+                android:id="@+id/actor_death_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/actor_death_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Death:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+
+                <TextView
+                    android:id="@+id/actor_deathday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"
+                    android:textColor="?attr/textColor"
+                    android:fontFamily="@font/google_sans"/>
+            </LinearLayout>
+
+            <!-- Age (stesso livello degli altri) -->
             <TextView
                 android:id="@+id/actor_age"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:layout_marginStart="50dp"
-                android:textColor="?attr/grayTextColor"
+                android:textColor="?attr/textColor"
                 android:fontFamily="@font/google_sans"/>
 
             <!-- Gender -->

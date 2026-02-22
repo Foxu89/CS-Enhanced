@@ -73,8 +73,8 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         
-        // Setup del pulsante menu
-        binding.menuButton.setOnClickListener {
+        // Setup del pulsante "Conosciuto per"
+        binding.knownForButton.setOnClickListener {
             toggleKnownForPanel()
         }
         
@@ -137,25 +137,30 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val biography = json.optString("biography", "")
                 val knownForDepartment = json.optString("known_for_department", "")
                 
-                // Carica i film conosciuti
+                // Carica solo i film/serie dove ha lavorato come attore (cast)
                 val credits = json.optJSONObject("combined_credits")
                 val cast = credits?.optJSONArray("cast") ?: JSONArray()
                 
                 knownForItems = (0 until cast.length()).mapNotNull { i ->
                     val item = cast.getJSONObject(i)
+                    
+                    // Prendi solo titolo
                     val title = item.optString("title").takeIf { it.isNotEmpty() } 
                         ?: item.optString("name").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
-                    val date = item.optString("release_date").takeIf { it.isNotEmpty() }
-                        ?: item.optString("first_air_date").takeIf { it.isNotEmpty() } ?: ""
-                    val year = if (date.length >= 4) date.substring(0, 4) else ""
+                    
+                    // Costruisci URL completo del poster
+                    val posterPath = item.optString("poster_path").takeIf { it.isNotEmpty() }
+                    val fullPosterUrl = if (!posterPath.isNullOrEmpty()) {
+                        "https://image.tmdb.org/t/p/w185$posterPath"
+                    } else null
                     
                     ActorKnownForItem(
                         title = title,
-                        year = year,
-                        posterPath = item.optString("poster_path").takeIf { it.isNotEmpty() },
+                        posterUrl = fullPosterUrl,
                         id = item.optInt("id")
                     )
-                }.sortedByDescending { it.year }
+                }.distinctBy { it.id } // Evita duplicati
+                  .sortedBy { it.title } // Ordina alfabeticamente
                 
                 Log.d(TAG, "Birthday: $birthday")
                 Log.d(TAG, "Deathday: $deathday")
@@ -322,7 +327,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
 
 data class ActorKnownForItem(
     val title: String,
-    val year: String,
-    val posterPath: String?,
+    val posterUrl: String?,
     val id: Int
 )

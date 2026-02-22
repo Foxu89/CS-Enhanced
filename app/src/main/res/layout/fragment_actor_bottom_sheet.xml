@@ -318,7 +318,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_baseline_close_24"
+                android:src="@drawable/ic_baseline_clear_24"
                 app:tint="?attr/textColor"/>
         </LinearLayout>
 

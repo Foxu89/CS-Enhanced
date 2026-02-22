@@ -27,13 +27,9 @@ class ActorKnownForAdapter(
             movieTitle.text = item.title
             movieYear.text = item.year
             
-            // Versione corretta di loadImage
+            // Carica immagine o mostra icona movie
             if (!item.posterPath.isNullOrEmpty()) {
-                moviePoster.loadImage(item.posterPath) {
-                    crossfade(true)
-                    placeholder(R.drawable.ic_baseline_movie_24)
-                    error(R.drawable.ic_baseline_movie_24)
-                }
+                moviePoster.loadImage(item.posterPath)
             } else {
                 moviePoster.setImageResource(R.drawable.ic_baseline_movie_24)
             }

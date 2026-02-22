@@ -25,11 +25,10 @@ class ActorKnownForAdapter(
         val item = items[position]
         holder.binding.apply {
             movieTitle.text = item.title
-            movieYear.text = item.year
             
             // Carica immagine o mostra icona movie
-            if (!item.posterPath.isNullOrEmpty()) {
-                moviePoster.loadImage(item.posterPath)
+            if (!item.posterUrl.isNullOrEmpty()) {
+                moviePoster.loadImage(item.posterUrl)
             } else {
                 moviePoster.setImageResource(R.drawable.ic_baseline_movie_24)
             }

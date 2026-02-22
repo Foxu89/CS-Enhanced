@@ -2,6 +2,7 @@ package com.lagradost.cloudstream3.ui.actor
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.databinding.ItemActorKnownForBinding

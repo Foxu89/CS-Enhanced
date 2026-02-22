@@ -2,7 +2,6 @@ package com.lagradost.cloudstream3.ui.actor
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.databinding.ItemActorKnownForBinding
@@ -27,9 +26,18 @@ class ActorKnownForAdapter(
         holder.binding.apply {
             movieTitle.text = item.title
             movieYear.text = item.year
-            moviePoster.loadImage(item.posterPath) {
-                error { loadImage(R.drawable.ic_baseline_movie_24) }
+            
+            // Versione corretta di loadImage
+            if (!item.posterPath.isNullOrEmpty()) {
+                moviePoster.loadImage(item.posterPath) {
+                    crossfade(true)
+                    placeholder(R.drawable.ic_baseline_movie_24)
+                    error(R.drawable.ic_baseline_movie_24)
+                }
+            } else {
+                moviePoster.setImageResource(R.drawable.ic_baseline_movie_24)
             }
+            
             root.setOnClickListener {
                 onItemClick(item)
             }

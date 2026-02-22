@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.BuildConfig
 import com.lagradost.cloudstream3.R
@@ -16,7 +15,6 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,8 +22,6 @@ import java.util.*
 class ActorBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentActorBottomSheetBinding? = null
     private val binding get() = _binding!!
-    private var knownForItems: List<ActorKnownForItem> = emptyList()
-    private var isPanelOpen = false
 
     companion object {
         private const val ARG_ACTOR_ID = "actor_id"
@@ -73,34 +69,15 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         
-        // Setup del pulsante "Conosciuto per"
-        binding.knownForButton.setOnClickListener {
-            toggleKnownForPanel()
-        }
-        
-        // Setup del pannello laterale
-        setupKnownForPanel()
-        
         loadActorDetails(actorId)
     }
     
     private fun getTmdbLanguageCode(): String {
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-        var appLanguage = prefs.getString("locale_key", null)
-        
-        if (appLanguage == null) {
-            appLanguage = Locale.getDefault().language
-            appLanguage = when (appLanguage) {
-                "it" -> "it-IT"
-                "en" -> "en-US"
-                "es" -> "es-ES"
-                "fr" -> "fr-FR"
-                "de" -> "de-DE"
-                else -> "en-US"
-            }
-        }
+        val appLanguage = prefs.getString("locale_key", "en-US") ?: "en-US"
         
         Log.d(TAG, "App language from prefs: $appLanguage")
+        
         return appLanguage
     }
     
@@ -112,8 +89,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val url = "https://api.themoviedb.org/3/person/$actorId"
                 val params = mapOf(
                     "api_key" to TMDB_API_KEY,
-                    "language" to tmdbLanguage,
-                    "append_to_response" to "combined_credits"
+                    "language" to tmdbLanguage
                 )
                 
                 Log.d(TAG, "API URL: $url")
@@ -137,38 +113,12 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 val biography = json.optString("biography", "")
                 val knownForDepartment = json.optString("known_for_department", "")
                 
-                // Carica solo i film/serie dove ha lavorato come attore (cast)
-                val credits = json.optJSONObject("combined_credits")
-                val cast = credits?.optJSONArray("cast") ?: JSONArray()
-                
-                knownForItems = (0 until cast.length()).mapNotNull { i ->
-                    val item = cast.getJSONObject(i)
-                    
-                    // Prendi solo titolo
-                    val title = item.optString("title").takeIf { it.isNotEmpty() } 
-                        ?: item.optString("name").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
-                    
-                    // Costruisci URL completo del poster
-                    val posterPath = item.optString("poster_path").takeIf { it.isNotEmpty() }
-                    val fullPosterUrl = if (!posterPath.isNullOrEmpty()) {
-                        "https://image.tmdb.org/t/p/w185$posterPath"
-                    } else null
-                    
-                    ActorKnownForItem(
-                        title = title,
-                        posterUrl = fullPosterUrl,
-                        id = item.optInt("id")
-                    )
-                }.distinctBy { it.id } // Evita duplicati
-                  .sortedBy { it.title } // Ordina alfabeticamente
-                
                 Log.d(TAG, "Birthday: $birthday")
                 Log.d(TAG, "Deathday: $deathday")
                 Log.d(TAG, "Place of birth: $placeOfBirth")
                 Log.d(TAG, "Gender: $gender")
                 Log.d(TAG, "Biography length: ${biography.length}")
                 Log.d(TAG, "Known for department: $knownForDepartment")
-                Log.d(TAG, "Known for items: ${knownForItems.size}")
                 
                 // Primi 200 caratteri della biografia
                 if (biography.isNotEmpty()) {
@@ -223,9 +173,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                     } else {
                         binding.actorBio.text = getString(R.string.actor_no_biography)
                     }
-                    
-                    // Aggiorna il pannello con i dati
-                    updateKnownForPanel()
                 }
             } catch (e: Exception) {
                 logError(e)
@@ -235,52 +182,6 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 }
             }
         }
-    }
-    
-    private fun setupKnownForPanel() {
-        binding.knownForPanelClose.setOnClickListener {
-            closeKnownForPanel()
-        }
-        
-        binding.knownForRecycler.layoutManager = LinearLayoutManager(requireContext())
-    }
-    
-    private fun updateKnownForPanel() {
-        if (knownForItems.isNotEmpty()) {
-            val adapter = ActorKnownForAdapter(knownForItems) { item ->
-                Log.d(TAG, "Clicked: ${item.title}")
-                // TODO: Apri dettagli film/serie
-            }
-            binding.knownForRecycler.adapter = adapter
-        }
-    }
-    
-    private fun toggleKnownForPanel() {
-        if (isPanelOpen) {
-            closeKnownForPanel()
-        } else {
-            openKnownForPanel()
-        }
-    }
-    
-    private fun openKnownForPanel() {
-        binding.knownForPanel.visibility = View.VISIBLE
-        binding.knownForPanel.animate()
-            .translationX(0f)
-            .setDuration(300)
-            .start()
-        isPanelOpen = true
-    }
-    
-    private fun closeKnownForPanel() {
-        binding.knownForPanel.animate()
-            .translationX(binding.knownForPanel.width.toFloat())
-            .setDuration(300)
-            .withEndAction {
-                binding.knownForPanel.visibility = View.GONE
-            }
-            .start()
-        isPanelOpen = false
     }
     
     private fun formatDate(dateString: String): String {
@@ -324,9 +225,3 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
         _binding = null
     }
 }
-
-data class ActorKnownForItem(
-    val title: String,
-    val posterUrl: String?,
-    val id: Int
-)

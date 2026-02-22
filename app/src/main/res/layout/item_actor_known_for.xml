@@ -14,7 +14,7 @@
         android:layout_height="70dp"
         android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/roundedImageView"
-        android:src="@drawable/ic_baseline_local_movies_24"
+        android:src="@drawable/ic_baseline_people_24"
         app:tint="?attr/grayTextColor"/>
 
     <LinearLayout

@@ -789,6 +789,7 @@
     <string name="actor_search_web">Search on web</string>
 
 	<!-- Actor Filmography -->
+	<string name="actor_filter">Filter</string>
     <string name="actor_filmography">Filmography</string>
     <string name="actor_all">All</string>
     <string name="actor_movies">Movies</string>

@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +20,6 @@ import com.lagradost.cloudstream3.ui.ViewHolderState
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
-import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import com.lagradost.cloudstream3.utils.UIHelper.popCurrentPage
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -34,7 +31,8 @@ class ActorFilmographyFragment : Fragment() {
     private var _binding: FragmentActorFilmographyBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var actorId: Int
+    // Non si può usare lateinit su Int, usiamo var con valore di default
+    private var actorId: Int = 0
     private lateinit var actorName: String
     private var actorImage: String? = null
     private var currentFilter = "all" // all, movies, tv
@@ -58,6 +56,10 @@ class ActorFilmographyFragment : Fragment() {
         val isUpcoming: Boolean
     )
 
+    companion object {
+        private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -71,9 +73,15 @@ class ActorFilmographyFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Get arguments
-        actorId = arguments?.getInt("actor_id") ?: return
+        actorId = arguments?.getInt("actor_id") ?: 0
         actorName = arguments?.getString("actor_name") ?: ""
         actorImage = arguments?.getString("actor_image")
+
+        if (actorId == 0) {
+            // Se non c'è ID, torna indietro
+            popCurrentPage()
+            return
+        }
 
         // Setup views
         setupViews()
@@ -210,7 +218,7 @@ class ActorFilmographyFragment : Fragment() {
                     val response = app.get(
                         "https://api.themoviedb.org/3/person/$actorId/combined_credits",
                         params = mapOf(
-                            "api_key" to ActorBottomSheet.TMDB_API_KEY,
+                            "api_key" to TMDB_API_KEY,
                             "language" to language
                         )
                     )
@@ -316,14 +324,9 @@ class ActorFilmographyFragment : Fragment() {
     }
 
     private fun onFilmographyItemClick(item: FilmographyItem) {
-        // Navigate to metadata screen
-        val bundle = Bundle().apply {
-            putString("id", item.id.toString())
-            putString("type", if (item.mediaType == "movie") "movie" else "tv")
-            putString("title", item.title)
-        }
-        // Navigate to metadata screen (you'll need to add this destination)
-        // navigate(R.id.action_to_metadata, bundle)
+        // TODO: Implement navigation to metadata screen
+        // For now, just log
+        android.util.Log.d("ActorFilmography", "Clicked: ${item.title}")
     }
 
     override fun onDestroyView() {
@@ -333,10 +336,22 @@ class ActorFilmographyFragment : Fragment() {
 
     class FilmographyAdapter(
         private val onItemClick: (FilmographyItem) -> Unit
-    ) : NoStateAdapter<FilmographyItem>(diffCallback = BaseDiffCallback(
-        itemSame = { a, b -> a.id == b.id },
-        contentsSame = { a, b -> a.title == b.title && a.releaseDate == b.releaseDate }
-    )) {
+    ) : NoStateAdapter<FilmographyItem>() {
+        
+        init {
+            // Usiamo il callback di NoStateAdapter
+            setCallback(object : NoStateAdapter.Callback<FilmographyItem> {
+                override fun areItemsTheSame(oldItem: FilmographyItem, newItem: FilmographyItem): Boolean {
+                    return oldItem.id == newItem.id
+                }
+                
+                override fun areContentsTheSame(oldItem: FilmographyItem, newItem: FilmographyItem): Boolean {
+                    return oldItem.title == newItem.title && 
+                           oldItem.releaseDate == newItem.releaseDate &&
+                           oldItem.posterPath == newItem.posterPath
+                }
+            })
+        }
 
         override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
             return ViewHolderState(

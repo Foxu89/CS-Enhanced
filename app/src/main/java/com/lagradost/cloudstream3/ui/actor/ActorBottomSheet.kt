@@ -16,6 +16,7 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.UIHelper
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -78,7 +79,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 putString("actor_image", actorImage)
             }
             // Usa l'activity per navigare
-            (activity as? MainActivity)?.navigate(R.id.actor_filmography_fragment, bundle)
+            UIHelper.navigate(activity, R.id.actor_filmography_fragment, bundle)
             dismiss()
         }
         

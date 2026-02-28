@@ -16,7 +16,6 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import androidx.navigation.fragment.NavHostFragment
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,17 +70,21 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         
-        // Filmography button click - VERSIONE CORRETTA
+        // Filmography button click - VERSIONE FINALE CON FRAGMENT MANAGER
         binding.filmographyButton.setOnClickListener {
-            val bundle = Bundle().apply {
-                putInt("actor_id", actorId)
-                putString("actor_name", actorName)
-                putString("actor_image", actorImage)
+            val fragment = ActorFilmographyFragment().apply {
+                arguments = Bundle().apply {
+                    putInt("actor_id", actorId)
+                    putString("actor_name", actorName)
+                    putString("actor_image", actorImage)
+                }
             }
-            // Usa l'activity per navigare
-            val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
-                ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-            navHostFragment?.navController?.navigate(R.id.actor_filmography_fragment, bundle)
+            
+            (activity as? MainActivity)?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.nav_host_fragment, fragment)
+                ?.addToBackStack("actor_filmography")
+                ?.commit()
+            
             dismiss()
         }
         

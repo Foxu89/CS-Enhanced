@@ -14,13 +14,9 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.ui.BaseDiffCallback
-import com.lagradost.cloudstream3.ui.NoStateAdapter
-import com.lagradost.cloudstream3.ui.ViewHolderState
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
-import com.lagradost.cloudstream3.utils.UIHelper.popCurrentPage
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -31,7 +27,6 @@ class ActorFilmographyFragment : Fragment() {
     private var _binding: FragmentActorFilmographyBinding? = null
     private val binding get() = _binding!!
 
-    // Non si può usare lateinit su Int, usiamo var con valore di default
     private var actorId: Int = 0
     private lateinit var actorName: String
     private var actorImage: String? = null
@@ -78,17 +73,13 @@ class ActorFilmographyFragment : Fragment() {
         actorImage = arguments?.getString("actor_image")
 
         if (actorId == 0) {
-            // Se non c'è ID, torna indietro
-            popCurrentPage()
+            requireActivity().onBackPressed()
             return
         }
 
-        // Setup views
         setupViews()
         setupRecyclerView()
         setupClickListeners()
-
-        // Load data
         loadFilmography()
     }
 
@@ -108,10 +99,9 @@ class ActorFilmographyFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.backButton.setOnClickListener {
-            popCurrentPage()
+            requireActivity().onBackPressed()
         }
 
-        // Filter buttons
         binding.filterAll.setOnClickListener {
             updateFilter("all")
         }
@@ -122,7 +112,6 @@ class ActorFilmographyFragment : Fragment() {
             updateFilter("tv")
         }
 
-        // Sort buttons
         binding.sortPopularity.setOnClickListener {
             updateSort("popularity")
         }
@@ -171,7 +160,6 @@ class ActorFilmographyFragment : Fragment() {
     }
 
     private fun applyFiltersAndSort() {
-        // Filter
         filteredList.clear()
         filteredList.addAll(when (currentFilter) {
             "movies" -> filmographyList.filter { it.mediaType == "movie" }
@@ -179,7 +167,6 @@ class ActorFilmographyFragment : Fragment() {
             else -> filmographyList
         })
 
-        // Sort
         when (currentSort) {
             "popularity" -> filteredList.sortByDescending { it.popularity }
             "latest" -> filteredList.sortByDescending { it.releaseDate }
@@ -189,7 +176,6 @@ class ActorFilmographyFragment : Fragment() {
             }
         }
 
-        // Update adapter
         adapter.submitList(filteredList.toList())
         updateCount()
     }
@@ -234,7 +220,6 @@ class ActorFilmographyFragment : Fragment() {
                         try {
                             val item = cast.getJSONObject(i)
                             
-                            // Skip talk shows and variety shows
                             val title = item.optString("title", item.optString("name", ""))
                             val overview = item.optString("overview", "")
                             if (isTalkShow(title, overview)) continue
@@ -324,8 +309,6 @@ class ActorFilmographyFragment : Fragment() {
     }
 
     private fun onFilmographyItemClick(item: FilmographyItem) {
-        // TODO: Implement navigation to metadata screen
-        // For now, just log
         android.util.Log.d("ActorFilmography", "Clicked: ${item.title}")
     }
 
@@ -334,91 +317,85 @@ class ActorFilmographyFragment : Fragment() {
         _binding = null
     }
 
+    // Adapter semplice senza NoStateAdapter
     class FilmographyAdapter(
         private val onItemClick: (FilmographyItem) -> Unit
-    ) : NoStateAdapter<FilmographyItem>() {
+    ) : RecyclerView.Adapter<FilmographyAdapter.ViewHolder>() {
         
-        init {
-            // Usiamo il callback di NoStateAdapter
-            setCallback(object : NoStateAdapter.Callback<FilmographyItem> {
-                override fun areItemsTheSame(oldItem: FilmographyItem, newItem: FilmographyItem): Boolean {
-                    return oldItem.id == newItem.id
-                }
+        private var items = listOf<FilmographyItem>()
+        
+        fun submitList(newList: List<FilmographyItem>) {
+            items = newList
+            notifyDataSetChanged()
+        }
+        
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val binding = ItemFilmographyGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ViewHolder(binding)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.bind(items[position])
+        }
+        
+        override fun getItemCount() = items.size
+        
+        inner class ViewHolder(private val binding: ItemFilmographyGridBinding) : 
+            RecyclerView.ViewHolder(binding.root) {
+            
+            fun bind(item: FilmographyItem) {
+                val context = binding.root.context
                 
-                override fun areContentsTheSame(oldItem: FilmographyItem, newItem: FilmographyItem): Boolean {
-                    return oldItem.title == newItem.title && 
-                           oldItem.releaseDate == newItem.releaseDate &&
-                           oldItem.posterPath == newItem.posterPath
+                if (!item.posterPath.isNullOrEmpty()) {
+                    binding.posterImage.loadImage("https://image.tmdb.org/t/p/w500${item.posterPath}")
+                    binding.posterImage.visibility = View.VISIBLE
+                    binding.posterPlaceholder.visibility = View.GONE
+                } else {
+                    binding.posterImage.visibility = View.GONE
+                    binding.posterPlaceholder.visibility = View.VISIBLE
                 }
-            })
-        }
 
-        override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
-            return ViewHolderState(
-                ItemFilmographyGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            )
-        }
+                binding.upcomingBadge.isVisible = item.isUpcoming
 
-        override fun onBindContent(holder: ViewHolderState<Any>, item: FilmographyItem, position: Int) {
-            val binding = holder.view as ItemFilmographyGridBinding
-            val context = binding.root.context
-
-            // Load poster
-            if (!item.posterPath.isNullOrEmpty()) {
-                binding.posterImage.loadImage("https://image.tmdb.org/t/p/w500${item.posterPath}")
-                binding.posterImage.visibility = View.VISIBLE
-                binding.posterPlaceholder.visibility = View.GONE
-            } else {
-                binding.posterImage.visibility = View.GONE
-                binding.posterPlaceholder.visibility = View.VISIBLE
-            }
-
-            // Upcoming badge
-            binding.upcomingBadge.isVisible = item.isUpcoming
-
-            // Rating badge
-            if (item.voteAverage > 0) {
-                binding.ratingBadge.isVisible = true
-                binding.ratingText.text = String.format("%.1f", item.voteAverage)
-            } else {
-                binding.ratingBadge.isVisible = false
-            }
-
-            // Title
-            binding.title.text = item.title
-
-            // Character
-            if (!item.character.isNullOrEmpty()) {
-                binding.character.isVisible = true
-                binding.character.text = context.getString(R.string.actor_as_character, item.character)
-            } else {
-                binding.character.isVisible = false
-            }
-
-            // Year
-            if (!item.releaseDate.isNullOrEmpty()) {
-                val year = try {
-                    val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-                    val date = format.parse(item.releaseDate)
-                    SimpleDateFormat("yyyy", Locale.getDefault()).format(date)
-                } catch (e: Exception) {
-                    ""
+                if (item.voteAverage > 0) {
+                    binding.ratingBadge.isVisible = true
+                    binding.ratingText.text = String.format("%.1f", item.voteAverage)
+                } else {
+                    binding.ratingBadge.isVisible = false
                 }
-                binding.year.text = year
-            } else {
-                binding.year.text = ""
-            }
 
-            // Upcoming indicator
-            if (item.isUpcoming) {
-                binding.upcomingIndicator.isVisible = true
-                binding.upcomingIndicator.text = context.getString(R.string.actor_coming_soon)
-            } else {
-                binding.upcomingIndicator.isVisible = false
-            }
+                binding.title.text = item.title
 
-            binding.root.setOnClickListener {
-                onItemClick(item)
+                if (!item.character.isNullOrEmpty()) {
+                    binding.character.isVisible = true
+                    binding.character.text = context.getString(R.string.actor_as_character, item.character)
+                } else {
+                    binding.character.isVisible = false
+                }
+
+                if (!item.releaseDate.isNullOrEmpty()) {
+                    val year = try {
+                        val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                        val date = format.parse(item.releaseDate)
+                        SimpleDateFormat("yyyy", Locale.getDefault()).format(date)
+                    } catch (e: Exception) {
+                        ""
+                    }
+                    binding.year.text = year
+                } else {
+                    binding.year.text = ""
+                }
+
+                if (item.isUpcoming) {
+                    binding.upcomingIndicator.isVisible = true
+                    binding.upcomingIndicator.text = context.getString(R.string.actor_coming_soon)
+                } else {
+                    binding.upcomingIndicator.isVisible = false
+                }
+
+                binding.root.setOnClickListener {
+                    onItemClick(item)
+                }
             }
         }
     }

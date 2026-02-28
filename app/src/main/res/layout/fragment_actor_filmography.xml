@@ -99,7 +99,7 @@
                     android:id="@+id/filterAll"
                     style="@style/FilterButton"
                     android:text="@string/actor_all"
-                    android:selected="true"/>
+                    android:tag="selected"/>
 
                 <Button
                     android:id="@+id/filterMovies"
@@ -150,7 +150,7 @@
                     style="@style/SortButton"
                     android:text="@string/actor_popularity"
                     android:drawableStart="@drawable/ic_baseline_trending_up_24"
-                    android:selected="true"/>
+                    android:tag="selected"/>
 
                 <Button
                     android:id="@+id/sortLatest"

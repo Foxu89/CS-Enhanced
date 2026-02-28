@@ -216,7 +216,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
-            android:paddingBottom="20dp">
+            android:paddingBottom="12dp">
 
             <TextView
                 android:id="@+id/actor_bio_label"
@@ -242,6 +242,19 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Filmography button -->
+    <Button
+        android:id="@+id/filmographyButton"
+        style="@style/BlackButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/actor_filmography"
+        android:fontFamily="@font/google_sans"
+        android:drawableStart="@drawable/ic_baseline_movie_24"
+        android:drawablePadding="8dp"/>
+
     <!-- Web search button -->
     <Button
         android:id="@+id/searchWebButton"
@@ -249,6 +262,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:layout_marginTop="0dp"
         android:text="@string/actor_search_web"
         android:fontFamily="@font/google_sans"/>
 </LinearLayout>

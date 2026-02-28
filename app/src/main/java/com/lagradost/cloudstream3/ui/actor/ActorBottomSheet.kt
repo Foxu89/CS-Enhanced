@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.BuildConfig
+import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorBottomSheetBinding
@@ -15,7 +16,6 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -70,17 +70,16 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         
-        // Filmography button click
+        // Filmography button click - VERSIONE CORRETTA
         binding.filmographyButton.setOnClickListener {
             val bundle = Bundle().apply {
                 putInt("actor_id", actorId)
                 putString("actor_name", actorName)
                 putString("actor_image", actorImage)
             }
-            // Navigate to filmography screen (you'll need to create this destination)
-            // navigate(R.id.action_to_actor_filmography, bundle)
-            // For now, just log
-            Log.d(TAG, "Filmography clicked for actor: $actorName")
+            // Usa l'activity per navigare
+            (activity as? MainActivity)?.navigate(R.id.actor_filmography_fragment, bundle)
+            dismiss()
         }
         
         loadActorDetails(actorId)

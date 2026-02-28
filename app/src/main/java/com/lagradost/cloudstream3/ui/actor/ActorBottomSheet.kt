@@ -15,6 +15,7 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -67,6 +68,19 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
             }
             startActivity(intent)
             dismiss()
+        }
+        
+        // Filmography button click
+        binding.filmographyButton.setOnClickListener {
+            val bundle = Bundle().apply {
+                putInt("actor_id", actorId)
+                putString("actor_name", actorName)
+                putString("actor_image", actorImage)
+            }
+            // Navigate to filmography screen (you'll need to create this destination)
+            // navigate(R.id.action_to_actor_filmography, bundle)
+            // For now, just log
+            Log.d(TAG, "Filmography clicked for actor: $actorName")
         }
         
         loadActorDetails(actorId)

@@ -9,11 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
+import com.lagradost.cloudstream3.ui.result.ResultFragmentPhone
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -309,7 +311,28 @@ class ActorFilmographyFragment : Fragment() {
     }
 
     private fun onFilmographyItemClick(item: FilmographyItem) {
-        android.util.Log.d("ActorFilmography", "Clicked: ${item.title}")
+        try {
+            // Crea il bundle esattamente come fa ResultFragment
+            val bundle = Bundle().apply {
+                // URL nel formato che usa Cloudstream (TMDB)
+                putString("url", "https://www.themoviedb.org/${item.mediaType}/${item.id}")
+                putString("apiName", "TMDB")
+                putBoolean("showFillers", false)
+                putString("dubStatus", "Subbed")
+                putInt("start", 0)
+                putBoolean("restart", true)
+                // Aggiungi anche il nome per la ricerca rapida
+                putString("name", item.title)
+            }
+            
+            // Naviga a ResultFragmentPhone usando FragmentManager
+            (activity as? MainActivity)?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.nav_host_fragment, ResultFragmentPhone::class.java, bundle)
+                ?.addToBackStack("result")
+                ?.commit()
+        } catch (e: Exception) {
+            logError(e)
+        }
     }
 
     override fun onDestroyView() {

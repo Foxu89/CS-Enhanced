@@ -1,6 +1,7 @@
 package com.lagradost.cloudstream3.ui.actor
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +13,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
+import com.lagradost.cloudstream3.Score
+import com.lagradost.cloudstream3.SearchQuality
+import com.lagradost.cloudstream3.SearchResponse
+import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
+import com.lagradost.cloudstream3.ui.result.ResultFragment
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -55,6 +61,7 @@ class ActorFilmographyFragment : Fragment() {
 
     companion object {
         private const val TMDB_API_KEY = "e6333b32409e02a4a6eba6fb7ff866bb"
+        private const val TAG = "ActorFilmography"
     }
 
     override fun onCreateView(
@@ -312,32 +319,42 @@ class ActorFilmographyFragment : Fragment() {
 
     private fun onFilmographyItemClick(item: FilmographyItem) {
         try {
+            Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
+            
             // Trova il NavHostFragment
             val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
                 ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
             
             if (navHostFragment == null) {
-                logError(Exception("NavHostFragment not found"))
+                Log.e(TAG, "NavHostFragment not found")
                 return
             }
 
-            // Crea il bundle esattamente come fa ResultFragment
-            val bundle = Bundle().apply {
-                // URL nel formato che usa Cloudstream (TMDB)
-                putString("url", "https://www.themoviedb.org/${item.mediaType}/${item.id}")
-                putString("apiName", "TMDB")
-                putBoolean("showFillers", false)
-                putString("dubStatus", "Subbed")
-                putInt("start", 0)
-                putBoolean("restart", true)
-                // Aggiungi anche il nome per la ricerca rapida
-                putString("name", item.title)
+            Log.d(TAG, "NavHostFragment found, navigating to details")
+
+            // Crea un oggetto SearchResponse fittizio con i dati necessari
+            val searchResponse = object : SearchResponse {
+                override val name: String = item.title
+                override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
+                override val apiName: String = "TMDB"
+                override var type: TvType? = if (item.mediaType == "movie") TvType.Movie else TvType.TvSeries
+                override var posterUrl: String? = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+                override var posterHeaders: Map<String, String>? = null
+                override var id: Int? = item.id
+                override var quality: SearchQuality? = null
+                override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            // Usa il NavController per navigare al fragment dei dettagli
+            // Usa il metodo ufficiale di ResultFragment per creare il bundle
+            val bundle = ResultFragment.newInstance(searchResponse)
+            
+            // Naviga ai dettagli
             navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
             
+            Log.d(TAG, "Navigation called successfully")
+            
         } catch (e: Exception) {
+            Log.e(TAG, "Error navigating", e)
             logError(e)
         }
     }
@@ -347,7 +364,7 @@ class ActorFilmographyFragment : Fragment() {
         _binding = null
     }
 
-    // Adapter semplice senza NoStateAdapter
+    // Adapter semplice
     class FilmographyAdapter(
         private val onItemClick: (FilmographyItem) -> Unit
     ) : RecyclerView.Adapter<FilmographyAdapter.ViewHolder>() {

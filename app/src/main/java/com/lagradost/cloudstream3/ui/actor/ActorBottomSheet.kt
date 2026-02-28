@@ -16,7 +16,7 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
-import com.lagradost.cloudstream3.utils.UIHelper
+import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*

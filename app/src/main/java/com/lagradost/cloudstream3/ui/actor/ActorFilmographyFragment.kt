@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.MainActivity
@@ -15,7 +16,6 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.ui.result.ResultFragmentPhone
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -312,6 +312,15 @@ class ActorFilmographyFragment : Fragment() {
 
     private fun onFilmographyItemClick(item: FilmographyItem) {
         try {
+            // Trova il NavHostFragment
+            val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
+                ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+            
+            if (navHostFragment == null) {
+                logError(Exception("NavHostFragment not found"))
+                return
+            }
+
             // Crea il bundle esattamente come fa ResultFragment
             val bundle = Bundle().apply {
                 // URL nel formato che usa Cloudstream (TMDB)
@@ -325,11 +334,9 @@ class ActorFilmographyFragment : Fragment() {
                 putString("name", item.title)
             }
             
-            // Naviga a ResultFragmentPhone usando FragmentManager
-            (activity as? MainActivity)?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.nav_host_fragment, ResultFragmentPhone::class.java, bundle)
-                ?.addToBackStack("result")
-                ?.commit()
+            // Usa il NavController per navigare al fragment dei dettagli
+            navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
+            
         } catch (e: Exception) {
             logError(e)
         }

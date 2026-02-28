@@ -79,7 +79,7 @@ class ActorBottomSheet : BottomSheetDialogFragment() {
                 putString("actor_image", actorImage)
             }
             // Usa l'activity per navigare
-            UIHelper.navigate(activity, R.id.actor_filmography_fragment, bundle)
+            activity?.navigate(R.id.actor_filmography_fragment, bundle)
             dismiss()
         }
         

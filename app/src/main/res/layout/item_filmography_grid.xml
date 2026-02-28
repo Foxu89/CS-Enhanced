@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Poster Container -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:background="?attr/iconGrayBackground"
+        android:foreground="@drawable/outline_drawable_less">
+
+        <!-- Actual Poster -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/posterImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/roundedImageView"/>
+
+        <!-- Placeholder -->
+        <FrameLayout
+            android:id="@+id/posterPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/iconGrayBackground"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🎬"
+                android:textSize="24sp"
+                android:textColor="?attr/grayTextColor"/>
+        </FrameLayout>
+
+        <!-- Upcoming Badge -->
+        <TextView
+            android:id="@+id/upcomingBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_margin="6dp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:text="@string/actor_upcoming_badge"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:background="@drawable/upcoming_badge_background"
+            android:visibility="gone"/>
+
+        <!-- Rating Badge -->
+        <FrameLayout
+            android:id="@+id/ratingBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="6dp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/rating_badge_background"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/ratingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8.5"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"/>
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="?attr/textColor"
+        android:fontFamily="@font/google_sans"
+        android:maxLines="2"
+        android:ellipsize="end"/>
+
+    <!-- Character -->
+    <TextView
+        android:id="@+id/character"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="?attr/grayTextColor"
+        android:fontFamily="@font/google_sans"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:visibility="gone"/>
+
+    <!-- Year and Upcoming Indicator -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="10sp"
+            android:textColor="?attr/grayTextColor"
+            android:fontFamily="@font/google_sans"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/upcomingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:textColor="#FFC107"
+            android:fontFamily="@font/google_sans"
+            android:visibility="gone"/>
+    </LinearLayout>
+</LinearLayout>

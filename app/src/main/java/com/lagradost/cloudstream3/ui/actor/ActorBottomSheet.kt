@@ -17,7 +17,6 @@ import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import androidx.navigation.fragment.NavHostFragment
-import com.lagradost.cloudstream3.MainActivity
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*

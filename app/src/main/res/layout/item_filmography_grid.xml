@@ -1,56 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="6dp"
-    android:focusable="true"
-    android:clickable="true"
-    android:background="?attr/selectableItemBackground">
+    android:layout_margin="2dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/iconGrayBackground">
 
-    <androidx.cardview.widget.CardView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="?attr/iconGrayBackground"
-        app:cardPreventCornerOverlap="false">
+        android:layout_height="0dp"
+        android:layout_weight="1.5">
+
+        <ImageView
+            android:id="@+id/posterImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/default_cover"/>
 
         <FrameLayout
+            android:id="@+id/posterPlaceholder"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/iconGrayBackground">
+            android:layout_height="match_parent"
+            android:background="?attr/iconGrayBackground"
+            android:visibility="visible"
+            android:gravity="center">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/posterImage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"
-                android:visibility="gone"
-                app:shapeAppearanceOverlay="@style/roundedImageView"/>
-
-            <FrameLayout
-                android:id="@+id/posterPlaceholder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/iconGrayBackground"
-                android:visibility="visible"
-                android:minHeight="150dp"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="🎬"
-                    android:textSize="32sp"
-                    android:textColor="?attr/grayTextColor"/>
-            </FrameLayout>
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/default_cover"
+                android:tint="?attr/grayTextColor"/>
 
         </FrameLayout>
-    </androidx.cardview.widget.CardView>
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/title"
@@ -60,7 +49,6 @@
         android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="?attr/textColor"
-        android:fontFamily="sans-serif-medium"
         android:maxLines="2"
         android:ellipsize="end"/>
 
@@ -70,7 +58,6 @@
         android:layout_height="wrap_content"
         android:textSize="11sp"
         android:textColor="?attr/grayTextColor"
-        android:fontFamily="sans-serif"
         android:maxLines="1"
         android:ellipsize="end"
         android:visibility="gone"/>
@@ -79,10 +66,7 @@
         android:id="@+id/year"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
         android:textSize="10sp"
-        android:textColor="?attr/grayTextColor"
-        android:fontFamily="sans-serif"
-        android:textStyle="bold"/>
+        android:textColor="?attr/grayTextColor"/>
 
-</LinearLayout>
+</androidx.cardview.widget.CardView>

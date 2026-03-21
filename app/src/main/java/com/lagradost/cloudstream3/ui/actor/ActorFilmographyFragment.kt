@@ -38,8 +38,8 @@ class ActorFilmographyFragment : Fragment() {
     private var actorId: Int = 0
     private lateinit var actorName: String
     private var actorImage: String? = null
-    private var currentFilter = "all" // all, movies, tv
-    private var currentSort = "popularity" // popularity, latest, upcoming
+    private var currentFilter = "all"
+    private var currentSort = "popularity"
 
     private val filmographyList = mutableListOf<FilmographyItem>()
     private val filteredList = mutableListOf<FilmographyItem>()
@@ -53,7 +53,7 @@ class ActorFilmographyFragment : Fragment() {
         val posterPath: String?,
         val releaseDate: String?,
         val character: String?,
-        val mediaType: String, // "movie" or "tv"
+        val mediaType: String,
         val popularity: Double,
         val voteAverage: Double,
         val isUpcoming: Boolean
@@ -76,7 +76,6 @@ class ActorFilmographyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Get arguments
         actorId = arguments?.getInt("actor_id") ?: 0
         actorName = arguments?.getString("actor_name") ?: ""
         actorImage = arguments?.getString("actor_image")
@@ -321,7 +320,6 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            // Trova il NavHostFragment
             val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
                 ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
             
@@ -330,9 +328,6 @@ class ActorFilmographyFragment : Fragment() {
                 return
             }
 
-            Log.d(TAG, "NavHostFragment found, navigating to details")
-
-            // Crea un oggetto SearchResponse fittizio con i dati necessari
             val searchResponse = object : SearchResponse {
                 override val name: String = item.title
                 override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
@@ -345,10 +340,7 @@ class ActorFilmographyFragment : Fragment() {
                 override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            // Usa il metodo ufficiale di ResultFragment per creare il bundle
             val bundle = ResultFragment.newInstance(searchResponse)
-            
-            // Naviga ai dettagli
             navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
             
             Log.d(TAG, "Navigation called successfully")
@@ -364,7 +356,6 @@ class ActorFilmographyFragment : Fragment() {
         _binding = null
     }
 
-    // Adapter semplice
     class FilmographyAdapter(
         private val onItemClick: (FilmographyItem) -> Unit
     ) : RecyclerView.Adapter<FilmographyAdapter.ViewHolder>() {
@@ -391,8 +382,6 @@ class ActorFilmographyFragment : Fragment() {
             RecyclerView.ViewHolder(binding.root) {
             
             fun bind(item: FilmographyItem) {
-                val context = binding.root.context
-                
                 if (!item.posterPath.isNullOrEmpty()) {
                     binding.posterImage.loadImage("https://image.tmdb.org/t/p/w500${item.posterPath}")
                     binding.posterImage.visibility = View.VISIBLE
@@ -402,20 +391,11 @@ class ActorFilmographyFragment : Fragment() {
                     binding.posterPlaceholder.visibility = View.VISIBLE
                 }
 
-                binding.upcomingBadge.isVisible = item.isUpcoming
-
-                if (item.voteAverage > 0) {
-                    binding.ratingBadge.isVisible = true
-                    binding.ratingText.text = String.format("%.1f", item.voteAverage)
-                } else {
-                    binding.ratingBadge.isVisible = false
-                }
-
                 binding.title.text = item.title
 
                 if (!item.character.isNullOrEmpty()) {
                     binding.character.isVisible = true
-                    binding.character.text = context.getString(R.string.actor_as_character, item.character)
+                    binding.character.text = item.character
                 } else {
                     binding.character.isVisible = false
                 }
@@ -431,13 +411,6 @@ class ActorFilmographyFragment : Fragment() {
                     binding.year.text = year
                 } else {
                     binding.year.text = ""
-                }
-
-                if (item.isUpcoming) {
-                    binding.upcomingIndicator.isVisible = true
-                    binding.upcomingIndicator.text = context.getString(R.string.actor_coming_soon)
-                } else {
-                    binding.upcomingIndicator.isVisible = false
                 }
 
                 binding.root.setOnClickListener {

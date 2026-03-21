@@ -202,7 +202,6 @@ class ActorFilmographyFragment : Fragment() {
     private fun loadFilmography() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.filmographyRecyclerView.visibility = View.GONE
-        binding.emptyView.root.visibility = View.GONE
 
         lifecycleScope.launch {
             ioSafe {
@@ -260,12 +259,8 @@ class ActorFilmographyFragment : Fragment() {
                         binding.loadingIndicator.visibility = View.GONE
                         
                         if (filmographyList.isEmpty()) {
-                            binding.emptyView.root.visibility = View.VISIBLE
                             binding.filmographyRecyclerView.visibility = View.GONE
-                            binding.emptyView.emptyTitle.setText(R.string.actor_no_content)
-                            binding.emptyView.emptyMessage.setText(R.string.actor_no_content)
                         } else {
-                            binding.emptyView.root.visibility = View.GONE
                             binding.filmographyRecyclerView.visibility = View.VISIBLE
                         }
                     }
@@ -274,9 +269,7 @@ class ActorFilmographyFragment : Fragment() {
                     logError(e)
                     main {
                         binding.loadingIndicator.visibility = View.GONE
-                        binding.emptyView.root.visibility = View.VISIBLE
-                        binding.emptyView.emptyTitle.setText(R.string.actor_error)
-                        binding.emptyView.emptyMessage.setText(e.message ?: getString(R.string.actor_error))
+                        binding.filmographyRecyclerView.visibility = View.GONE
                     }
                 }
             }

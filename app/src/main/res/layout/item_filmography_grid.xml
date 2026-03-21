@@ -4,92 +4,64 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="4dp"
+    android:padding="6dp"
+    android:focusable="true"
+    android:clickable="true"
     android:background="?attr/selectableItemBackground">
 
-    <!-- Poster Container -->
-    <FrameLayout
+    <!-- Poster Container con CardView -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.5"
-        android:background="?attr/iconGrayBackground"
-        android:foreground="@drawable/outline_drawable_less">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/iconGrayBackground"
+        app:cardPreventCornerOverlap="false">
 
-        <!-- Actual Poster -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/posterImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:shapeAppearanceOverlay="@style/roundedImageView"/>
-
-        <!-- Placeholder -->
         <FrameLayout
-            android:id="@+id/posterPlaceholder"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/iconGrayBackground"
-            android:visibility="visible">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="🎬"
-                android:textSize="24sp"
-                android:textColor="?attr/grayTextColor"/>
+            <!-- Actual Poster -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/posterImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/roundedImageView"/>
+
+            <!-- Placeholder -->
+            <FrameLayout
+                android:id="@+id/posterPlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/iconGrayBackground"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="🎬"
+                    android:textSize="28sp"
+                    android:textColor="?attr/grayTextColor"/>
+            </FrameLayout>
+
         </FrameLayout>
-
-        <!-- Upcoming Badge -->
-        <TextView
-            android:id="@+id/upcomingBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_margin="6dp"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:text="@string/actor_upcoming_badge"
-            android:textSize="9sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:background="@drawable/upcoming_badge_background"
-            android:visibility="gone"/>
-
-        <!-- Rating Badge -->
-        <FrameLayout
-            android:id="@+id/ratingBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="6dp"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:background="@drawable/rating_badge_background"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/ratingText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="8.5"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"/>
-        </FrameLayout>
-    </FrameLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- Title -->
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="?attr/textColor"
-        android:fontFamily="@font/google_sans"
+        android:fontFamily="sans-serif-medium"
         android:maxLines="2"
         android:ellipsize="end"/>
 
@@ -100,37 +72,20 @@
         android:layout_height="wrap_content"
         android:textSize="11sp"
         android:textColor="?attr/grayTextColor"
-        android:fontFamily="@font/google_sans"
+        android:fontFamily="sans-serif"
         android:maxLines="1"
         android:ellipsize="end"
         android:visibility="gone"/>
 
-    <!-- Year and Upcoming Indicator -->
-    <LinearLayout
+    <!-- Year -->
+    <TextView
+        android:id="@+id/year"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="2dp"
-        android:gravity="center_vertical">
+        android:textSize="10sp"
+        android:textColor="?attr/grayTextColor"
+        android:fontFamily="sans-serif"
+        android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/year"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="10sp"
-            android:textColor="?attr/grayTextColor"
-            android:fontFamily="@font/google_sans"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/upcomingIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="9sp"
-            android:textStyle="bold"
-            android:textColor="#FFC107"
-            android:fontFamily="@font/google_sans"
-            android:visibility="gone"/>
-    </LinearLayout>
 </LinearLayout>

@@ -9,11 +9,9 @@
     android:clickable="true"
     android:background="?attr/selectableItemBackground">
 
-    <!-- Poster Container con CardView -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5"
+        android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp"
         app:cardBackgroundColor="?attr/iconGrayBackground"
@@ -21,38 +19,39 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:background="?attr/iconGrayBackground">
 
-            <!-- Actual Poster -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/posterImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
                 android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/roundedImageView"/>
 
-            <!-- Placeholder -->
             <FrameLayout
                 android:id="@+id/posterPlaceholder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="?attr/iconGrayBackground"
-                android:visibility="visible">
+                android:visibility="visible"
+                android:minHeight="150dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="🎬"
-                    android:textSize="28sp"
+                    android:textSize="32sp"
                     android:textColor="?attr/grayTextColor"/>
             </FrameLayout>
 
         </FrameLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Title -->
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -65,7 +64,6 @@
         android:maxLines="2"
         android:ellipsize="end"/>
 
-    <!-- Character -->
     <TextView
         android:id="@+id/character"
         android:layout_width="match_parent"
@@ -77,7 +75,6 @@
         android:ellipsize="end"
         android:visibility="gone"/>
 
-    <!-- Year -->
     <TextView
         android:id="@+id/year"
         android:layout_width="match_parent"

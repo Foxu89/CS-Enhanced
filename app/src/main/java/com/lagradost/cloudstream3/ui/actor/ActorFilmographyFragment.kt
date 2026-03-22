@@ -98,7 +98,6 @@ class ActorFilmographyFragment : Fragment() {
         }
         binding.filmographyCount.text = "0 ${getString(R.string.actor_filmography)}"
         
-        // Imposta filtro All come selezionato di default
         updateFilterButtonStyles()
         updateSortButtonStyles()
     }
@@ -225,7 +224,6 @@ class ActorFilmographyFragment : Fragment() {
 
                     filmographyList.clear()
                     
-                    // Usa un Set per tracciare gli ID e rimuovere i doppioni
                     val seenIds = mutableSetOf<Int>()
                     val currentDate = Date()
 
@@ -234,7 +232,6 @@ class ActorFilmographyFragment : Fragment() {
                             val item = cast.getJSONObject(i)
                             
                             val id = item.optInt("id")
-                            // Salta se l'ID è già stato visto (doppione)
                             if (seenIds.contains(id)) continue
                             
                             val title = item.optString("title", item.optString("name", ""))
@@ -246,7 +243,6 @@ class ActorFilmographyFragment : Fragment() {
                             val releaseDate = parseDate(releaseDateStr)
                             val isUpcoming = releaseDate != null && releaseDate.after(currentDate)
 
-                            // Aggiungi l'ID al set
                             seenIds.add(id)
                             
                             filmographyList.add(
@@ -326,14 +322,6 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
-                ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-            
-            if (navHostFragment == null) {
-                Log.e(TAG, "NavHostFragment not found")
-                return
-            }
-
             val searchResponse = object : SearchResponse {
                 override val name: String = item.title
                 override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
@@ -347,7 +335,20 @@ class ActorFilmographyFragment : Fragment() {
             }
             
             val bundle = ResultFragment.newInstance(searchResponse)
-            navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
+            
+            val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
+                ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+            
+            if (navHostFragment != null) {
+                navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
+            } else {
+                val fragment = ResultFragment()
+                fragment.arguments = bundle
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
             
             Log.d(TAG, "Navigation called successfully")
             
@@ -398,7 +399,23 @@ class ActorFilmographyFragment : Fragment() {
                 }
 
                 binding.title.text = item.title
-
+                
+                binding.root.setOnFocusChangeListener { view, hasFocus ->
+                    if (hasFocus) {
+                        view.animate()
+                            .scaleX(1.05f)
+                            .scaleY(1.05f)
+                            .setDuration(150)
+                            .start()
+                    } else {
+                        view.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(150)
+                            .start()
+                    }
+                }
+                
                 binding.root.setOnClickListener {
                     onItemClick(item)
                 }

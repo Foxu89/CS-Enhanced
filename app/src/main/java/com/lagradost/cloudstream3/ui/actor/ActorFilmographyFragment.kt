@@ -343,7 +343,7 @@ class ActorFilmographyFragment : Fragment() {
                 putString("posterUrl", searchResponse.posterUrl)
                 putInt("id", searchResponse.id ?: 0)
                 putInt("type", searchResponse.type?.ordinal ?: 0)
-                putDouble("score", searchResponse.score?.value ?: 0.0)
+                putDouble("score", searchResponse.score?.toDouble() ?: 0.0)
             }
             
             val navHostFragment = (activity as? MainActivity)?.supportFragmentManager

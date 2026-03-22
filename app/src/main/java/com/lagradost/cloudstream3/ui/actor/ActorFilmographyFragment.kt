@@ -97,6 +97,10 @@ class ActorFilmographyFragment : Fragment() {
             binding.actorImage.loadImage(actorImage)
         }
         binding.filmographyCount.text = "0 ${getString(R.string.actor_filmography)}"
+        
+        // Imposta filtro All come selezionato di default
+        updateFilterButtonStyles()
+        updateSortButtonStyles()
     }
 
     private fun setupRecyclerView() {
@@ -220,12 +224,18 @@ class ActorFilmographyFragment : Fragment() {
                     val cast = json.optJSONArray("cast") ?: JSONArray()
 
                     filmographyList.clear()
-
+                    
+                    // Usa un Set per tracciare gli ID e rimuovere i doppioni
+                    val seenIds = mutableSetOf<Int>()
                     val currentDate = Date()
 
                     for (i in 0 until cast.length()) {
                         try {
                             val item = cast.getJSONObject(i)
+                            
+                            val id = item.optInt("id")
+                            // Salta se l'ID è già stato visto (doppione)
+                            if (seenIds.contains(id)) continue
                             
                             val title = item.optString("title", item.optString("name", ""))
                             val overview = item.optString("overview", "")
@@ -236,9 +246,12 @@ class ActorFilmographyFragment : Fragment() {
                             val releaseDate = parseDate(releaseDateStr)
                             val isUpcoming = releaseDate != null && releaseDate.after(currentDate)
 
+                            // Aggiungi l'ID al set
+                            seenIds.add(id)
+                            
                             filmographyList.add(
                                 FilmographyItem(
-                                    id = item.optInt("id"),
+                                    id = id,
                                     title = title,
                                     posterPath = item.optString("poster_path", null),
                                     releaseDate = releaseDateStr,
@@ -385,26 +398,6 @@ class ActorFilmographyFragment : Fragment() {
                 }
 
                 binding.title.text = item.title
-
-                if (!item.character.isNullOrEmpty()) {
-                    binding.character.isVisible = true
-                    binding.character.text = item.character
-                } else {
-                    binding.character.isVisible = false
-                }
-
-                if (!item.releaseDate.isNullOrEmpty()) {
-                    val year = try {
-                        val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-                        val date = format.parse(item.releaseDate)
-                        SimpleDateFormat("yyyy", Locale.getDefault()).format(date)
-                    } catch (e: Exception) {
-                        ""
-                    }
-                    binding.year.text = year
-                } else {
-                    binding.year.text = ""
-                }
 
                 binding.root.setOnClickListener {
                     onItemClick(item)

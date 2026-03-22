@@ -10,9 +10,9 @@ import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.Score
@@ -324,47 +324,30 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            val searchResponse = object : SearchResponse {
-                override val name: String = item.title
-                override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
-                override val apiName: String = "TMDB"
-                override var type: TvType? = if (item.mediaType == "movie") TvType.Movie else TvType.TvSeries
-                override var posterUrl: String? = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
-                override var posterHeaders: Map<String, String>? = null
-                override var id: Int? = item.id
-                override var quality: SearchQuality? = null
-                override var score: Score? = Score.from10(item.voteAverage)
-            }
-            
             val bundle = Bundle().apply {
-                putString("url", searchResponse.url)
-                putString("apiName", searchResponse.apiName)
-                putString("name", searchResponse.name)
-                putString("posterUrl", searchResponse.posterUrl)
-                putInt("id", searchResponse.id ?: 0)
-                putInt("type", searchResponse.type?.ordinal ?: 0)
-                putDouble("score", searchResponse.score?.toDouble() ?: 0.0)
+                putString("url", "https://www.themoviedb.org/${item.mediaType}/${item.id}")
+                putString("apiName", "TMDB")
+                putString("name", item.title)
+                putString("posterUrl", item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" })
+                putInt("id", item.id)
+                putInt("type", if (item.mediaType == "movie") TvType.Movie.ordinal else TvType.TvSeries.ordinal)
+                putDouble("score", item.voteAverage)
             }
             
-            val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
-                ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+            val fragment = ResultFragmentPhone()
+            fragment.arguments = bundle
             
-            if (navHostFragment != null) {
-                navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
-            } else {
-                val fragment = ResultFragmentPhone()
-                fragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, fragment)
+                .addToBackStack("actor_filmography")
+                .commit()
             
             Log.d(TAG, "Navigation called successfully")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error navigating", e)
             logError(e)
+            showToast("Errore: ${e.message}")
         }
     }
 

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/primaryBlackBackground">
+    android:background="?attr/primaryBlackBackground"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -174,7 +175,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/filmographyRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingHorizontal="12dp"
         android:paddingTop="8dp"
         android:paddingBottom="20dp"

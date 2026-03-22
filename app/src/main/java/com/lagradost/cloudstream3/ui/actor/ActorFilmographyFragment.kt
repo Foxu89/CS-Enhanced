@@ -5,10 +5,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.Score
@@ -332,7 +336,15 @@ class ActorFilmographyFragment : Fragment() {
                 override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            val bundle = ResultFragmentPhone.newInstance(searchResponse)
+            val bundle = Bundle().apply {
+                putString("url", searchResponse.url)
+                putString("apiName", searchResponse.apiName)
+                putString("name", searchResponse.name)
+                putString("posterUrl", searchResponse.posterUrl)
+                putInt("id", searchResponse.id ?: 0)
+                putInt("type", searchResponse.type?.ordinal ?: 0)
+                putDouble("score", searchResponse.score?.value ?: 0.0)
+            }
             
             val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
                 ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
@@ -400,17 +412,25 @@ class ActorFilmographyFragment : Fragment() {
                 
                 binding.root.setOnFocusChangeListener { view, hasFocus ->
                     if (hasFocus) {
-                        view.animate()
-                            .scaleX(1.05f)
-                            .scaleY(1.05f)
-                            .setDuration(150)
-                            .start()
+                        val scaleAnim = ScaleAnimation(
+                            1.0f, 1.05f,
+                            1.0f, 1.05f,
+                            Animation.RELATIVE_TO_SELF, 0.5f,
+                            Animation.RELATIVE_TO_SELF, 0.5f
+                        )
+                        scaleAnim.duration = 150
+                        scaleAnim.fillAfter = true
+                        view.startAnimation(scaleAnim)
                     } else {
-                        view.animate()
-                            .scaleX(1.0f)
-                            .scaleY(1.0f)
-                            .setDuration(150)
-                            .start()
+                        val scaleAnim = ScaleAnimation(
+                            1.05f, 1.0f,
+                            1.05f, 1.0f,
+                            Animation.RELATIVE_TO_SELF, 0.5f,
+                            Animation.RELATIVE_TO_SELF, 0.5f
+                        )
+                        scaleAnim.duration = 150
+                        scaleAnim.fillAfter = true
+                        view.startAnimation(scaleAnim)
                     }
                 }
                 

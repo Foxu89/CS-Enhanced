@@ -9,8 +9,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.Score
@@ -21,7 +19,7 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.ui.result.ResultFragment
+import com.lagradost.cloudstream3.ui.result.ResultFragmentPhone
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -334,7 +332,7 @@ class ActorFilmographyFragment : Fragment() {
                 override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            val bundle = ResultFragment.newInstance(searchResponse)
+            val bundle = ResultFragmentPhone.newInstance(searchResponse)
             
             val navHostFragment = (activity as? MainActivity)?.supportFragmentManager
                 ?.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
@@ -342,7 +340,7 @@ class ActorFilmographyFragment : Fragment() {
             if (navHostFragment != null) {
                 navHostFragment.navController.navigate(R.id.navigation_results_phone, bundle)
             } else {
-                val fragment = ResultFragment()
+                val fragment = ResultFragmentPhone()
                 fragment.arguments = bundle
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.nav_host_fragment, fragment)

@@ -22,9 +22,7 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.ui.search.SearchClickCallback
-import com.lagradost.cloudstream3.ui.search.SearchHelper
-import com.lagradost.cloudstream3.ui.search.SEARCH_ACTION_LOAD
+import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -337,14 +335,7 @@ class ActorFilmographyFragment : Fragment() {
                 override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            SearchHelper.handleSearchClickCallback(
-                SearchClickCallback(
-                    SEARCH_ACTION_LOAD,
-                    binding.root,
-                    0,
-                    searchResponse
-                )
-            )
+            activity?.loadSearchResult(searchResponse)
             
             Log.d(TAG, "Navigation called successfully")
             

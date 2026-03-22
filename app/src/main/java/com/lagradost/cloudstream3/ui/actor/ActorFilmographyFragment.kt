@@ -23,7 +23,9 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.ui.result.ResultFragmentPhone
+import com.lagradost.cloudstream3.ui.search.SearchClickCallback
+import com.lagradost.cloudstream3.ui.search.SearchHelper
+import com.lagradost.cloudstream3.ui.search.SEARCH_ACTION_LOAD
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -324,23 +326,26 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            val bundle = Bundle().apply {
-                putString("url", "https://www.themoviedb.org/${item.mediaType}/${item.id}")
-                putString("apiName", "TMDB")
-                putString("name", item.title)
-                putString("posterUrl", item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" })
-                putInt("id", item.id)
-                putInt("type", if (item.mediaType == "movie") TvType.Movie.ordinal else TvType.TvSeries.ordinal)
-                putDouble("score", item.voteAverage)
+            val searchResponse = object : SearchResponse {
+                override val name: String = item.title
+                override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
+                override val apiName: String = "TMDB"
+                override var type: TvType? = if (item.mediaType == "movie") TvType.Movie else TvType.TvSeries
+                override var posterUrl: String? = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+                override var posterHeaders: Map<String, String>? = null
+                override var id: Int? = item.id
+                override var quality: SearchQuality? = null
+                override var score: Score? = Score.from10(item.voteAverage)
             }
             
-            val fragment = ResultFragmentPhone()
-            fragment.arguments = bundle
-            
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, fragment)
-                .addToBackStack("actor_filmography")
-                .commit()
+            SearchHelper.handleSearchClickCallback(
+                SearchClickCallback(
+                    SEARCH_ACTION_LOAD,
+                    binding.root,
+                    0,
+                    searchResponse
+                )
+            )
             
             Log.d(TAG, "Navigation called successfully")
             

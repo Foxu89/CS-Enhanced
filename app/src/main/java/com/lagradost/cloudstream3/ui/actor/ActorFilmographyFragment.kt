@@ -23,7 +23,6 @@ import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
-import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
@@ -324,12 +323,12 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            QuickSearchFragment.pushSearch(item.title)
+            QuickSearchFragment.pushSearch(activity, item.title)
             
-            Log.d(TAG, "Navigation called successfully")
+            Log.d(TAG, "Search pushed successfully")
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error navigating", e)
+            Log.e(TAG, "Error opening search", e)
             logError(e)
             showToast("Errore: ${e.message}")
         }

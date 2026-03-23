@@ -22,6 +22,7 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.databinding.FragmentActorFilmographyBinding
 import com.lagradost.cloudstream3.databinding.ItemFilmographyGridBinding
 import com.lagradost.cloudstream3.mvvm.logError
+import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
 import com.lagradost.cloudstream3.utils.AppContextUtils.loadSearchResult
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
@@ -323,19 +324,7 @@ class ActorFilmographyFragment : Fragment() {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
             
-            val searchResponse = object : SearchResponse {
-                override val name: String = item.title
-                override val url: String = "https://www.themoviedb.org/${item.mediaType}/${item.id}"
-                override val apiName: String = "TMDB"
-                override var type: TvType? = if (item.mediaType == "movie") TvType.Movie else TvType.TvSeries
-                override var posterUrl: String? = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
-                override var posterHeaders: Map<String, String>? = null
-                override var id: Int? = item.id
-                override var quality: SearchQuality? = null
-                override var score: Score? = Score.from10(item.voteAverage)
-            }
-            
-            activity?.loadSearchResult(searchResponse)
+            QuickSearchFragment.pushSearch(item.title)
             
             Log.d(TAG, "Navigation called successfully")
             

@@ -44,9 +44,18 @@ class ActorFilmographyFragment : Fragment() {
 
     private val filmographyList = mutableListOf<FilmographyItem>()
     private val filteredList = mutableListOf<FilmographyItem>()
-    private val adapter = FilmographyAdapter { item ->
-        onFilmographyItemClick(item)
+    
+    // IL CALLBACK PER LA RICERCA - COME HA FATTO LUI!
+    private val searchCallback: (String) -> Unit = { title ->
+        QuickSearchFragment.pushSearch(requireActivity(), title)
     }
+    
+    private val adapter = FilmographyAdapter(
+        onItemClick = { item ->
+            onFilmographyItemClick(item)
+        },
+        searchCallback = searchCallback
+    )
 
     data class FilmographyItem(
         val id: Int,
@@ -322,15 +331,9 @@ class ActorFilmographyFragment : Fragment() {
     private fun onFilmographyItemClick(item: FilmographyItem) {
         try {
             Log.d(TAG, "Clicked: ${item.title} (${item.mediaType})")
-            
-            QuickSearchFragment.pushSearch(activity, item.title)
-            
-            Log.d(TAG, "Search pushed successfully")
-            
+            // Il callback fa già la ricerca, questo è solo per log
         } catch (e: Exception) {
-            Log.e(TAG, "Error opening search", e)
-            logError(e)
-            showToast("Errore: ${e.message}")
+            Log.e(TAG, "Error", e)
         }
     }
 
@@ -339,8 +342,10 @@ class ActorFilmographyFragment : Fragment() {
         _binding = null
     }
 
+    // ADAPTER CON CALLBACK - COME HA FATTO LUI!
     class FilmographyAdapter(
-        private val onItemClick: (FilmographyItem) -> Unit
+        private val onItemClick: (FilmographyItem) -> Unit,
+        private val searchCallback: (String) -> Unit
     ) : RecyclerView.Adapter<FilmographyAdapter.ViewHolder>() {
         
         private var items = listOf<FilmographyItem>()
@@ -401,6 +406,7 @@ class ActorFilmographyFragment : Fragment() {
                 }
                 
                 binding.root.setOnClickListener {
+                    searchCallback(item.title)
                     onItemClick(item)
                 }
             }
